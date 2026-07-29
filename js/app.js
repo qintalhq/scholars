@@ -121,6 +121,19 @@ async function loadAnnouncements() {
 async function loadResources() {
 
 
+let selectedPDF = "";
+
+function openProtectedResource(url){
+    selectedPDF = url;
+    document.getElementById("unlockPopup").style.display = "flex";
+
+
+function closePopup(){
+    document.getElementById("unlockPopup").style.display = "none";
+}
+  
+
+
     resourceContainer.innerHTML = `
         <p class="loading">
             Loading resources...

@@ -142,13 +142,7 @@ function displayResources(resources){
         card.innerHTML = `
 
 
-        <div class="thumbnail-box">
-
-            <img 
-            src="${resource.thumbnail || 
-            'https://via.placeholder.com/400x250'}"
-            alt="${resource.title}"
-            >
+    
 
         </div>
 

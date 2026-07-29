@@ -12,6 +12,42 @@ let allResources = [];
 // ------------------------------
 // Load Announcements
 // ------------------------------
+async function checkAccessCode() {
+
+    const enteredCode = document
+        .getElementById("codeInput")
+        .value
+        .trim();
+
+    const { data, error } =
+        await window.supabaseClient
+        .from("access_codes")
+        .select("id")
+        .eq("access_code", enteredCode)
+        .eq("active", true)
+        .maybeSingle();
+
+    if (error) {
+        console.error(error);
+        alert("Unable to verify access code.");
+        return;
+    }
+
+    if (!data) {
+        document.getElementById("errorMsg").textContent =
+            "❌ Invalid Access Code";
+        return;
+    }
+
+    window.open(selectedPDF, "_blank");
+
+    document.getElementById("unlockPopup").style.display = "none";
+}
+
+
+
+
+
 async function loadAnnouncements() {
 
     announcementBox.innerHTML = `

@@ -127,37 +127,88 @@ function displayResources(resources){
 
     resourceContainer.innerHTML = "";
 
-card.innerHTML = `
 
-<div class="resource-content">
+    resources.forEach(resource => {
 
-<h3>${resource.title}</h3>
 
-<p>${resource.description || "No description available."}</p>
+        const card =
+        document.createElement("div");
 
-<div class="resource-meta">
 
-<span>${resource.subject || "Subject"}</span>
+        card.className =
+        "resource-card";
 
-<span>${resource.chapter || "Chapter"}</span>
 
-<span>Class ${resource.class || ""}</span>
+        card.innerHTML = `
 
-<span>${resource.resource_type || "Notes"}</span>
 
-</div>
+        <div class="thumbnail-box">
 
-<a class="open-btn"
-href="${resource.pdf_url}"
-target="_blank">
+            <img 
+            src="${resource.thumbnail || 
+            'https://via.placeholder.com/400x250'}"
+            alt="${resource.title}"
+            >
 
-Open Resource
+        </div>
 
-</a>
 
-</div>
+        <div class="resource-content">
 
-`;
+
+            <h3>
+                ${resource.title}
+            </h3>
+
+
+            <p>
+                ${resource.description || 
+                "No description available."}
+            </p>
+
+
+
+            <div class="resource-meta">
+
+
+                <span>
+                    ${resource.subject || "Subject"}
+                </span>
+
+
+                <span>
+                    ${resource.chapter || "Chapter"}
+                </span>
+
+
+                <span>
+                    Class ${resource.class || ""}
+                </span>
+
+
+                <span>
+                    ${resource.resource_type || "Notes"}
+                </span>
+
+
+            </div>
+
+
+
+            <a 
+            class="open-btn"
+            href="${resource.pdf_url}"
+            target="_blank">
+
+                Open Resource
+
+            </a>
+
+
+        </div>
+
+
+        `;
 
 
         resourceContainer.appendChild(card);

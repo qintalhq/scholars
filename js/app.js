@@ -236,14 +236,12 @@ function displayResources(resources){
 
 
 
-            <a 
-            class="open-btn"
-            href="${resource.pdf_url}"
-            target="_blank">
-
-                Open Resource
-
-            </a>
+            <a
+href="#"
+class="open-btn"
+onclick="openProtectedResource('${resource.pdf_url}'); return false;">
+Open Resource
+</a>
 
 
         </div>

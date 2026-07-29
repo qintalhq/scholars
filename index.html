@@ -23,6 +23,78 @@ box-sizing:border-box;
 font-family:'Poppins',sans-serif;
 scroll-behavior:smooth;
 }
+     .resource-card{
+background:#111;
+border:1px solid #222;
+border-radius:22px;
+padding:28px;
+transition:.35s;
+display:flex;
+flex-direction:column;
+gap:18px;
+animation:fadeUp .6s ease forwards;
+opacity:0;
+transform:translateY(40px);
+}
+
+.resource-card:hover{
+transform:translateY(-8px);
+border-color:#ff2d2d;
+box-shadow:0 0 30px rgba(255,45,45,.25);
+}
+
+.resource-content h3{
+font-size:24px;
+margin-bottom:10px;
+color:#fff;
+}
+
+.resource-content p{
+color:#bdbdbd;
+line-height:1.7;
+margin-bottom:18px;
+}
+
+.resource-meta{
+display:flex;
+flex-wrap:wrap;
+gap:10px;
+margin-bottom:20px;
+}
+
+.resource-meta span{
+background:#191919;
+border:1px solid #333;
+padding:7px 14px;
+border-radius:30px;
+font-size:13px;
+color:#ddd;
+}
+
+.open-btn{
+display:block;
+width:100%;
+text-align:center;
+padding:15px;
+background:#ff2d2d;
+color:white;
+text-decoration:none;
+border-radius:40px;
+font-weight:700;
+transition:.3s;
+}
+
+.open-btn:hover{
+transform:translateY(-3px);
+box-shadow:0 0 20px rgba(255,45,45,.45);
+}
+
+@keyframes fadeUp{
+to{
+opacity:1;
+transform:none;
+}
+}
 
 body{
 background:#080808;

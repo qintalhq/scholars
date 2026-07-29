@@ -350,7 +350,7 @@ powered by The Scholars.
 <div class="searchBox">
 
 <input
-id="searchInput"
+id="search"
 type="text"
 placeholder="Search notes, chapters or subjects..."
 >
@@ -642,23 +642,7 @@ transform:none;
 
 <script>
 
-/* Live Search */
-const searchInput=document.getElementById("searchInput");
 
-if(searchInput){
-
-searchInput.addEventListener("keyup",function(){
-
-const filter=this.value.toLowerCase();
-
-document.querySelectorAll(".card").forEach(card=>{
-
-card.style.display=
-card.innerText.toLowerCase().includes(filter)
-? ""
-: "none";
-
-});
 
 });
 

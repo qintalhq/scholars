@@ -1,7 +1,7 @@
 // ===============================
 // The Scholars - App
 // ===============================
-alert("app.js loaded");
+
 const resourceContainer = document.getElementById("resourceContainer");
 const announcementBox = document.getElementById("announcementBox");
 const searchInput = document.getElementById("searchInput");

@@ -1,276 +1,862 @@
-// ===============================
-// The Scholars - App
-// ===============================
+// ==========================================
+// THE SCHOLARS
+// Premium App v2.0
+// ==========================================
 
-const resourceContainer = document.getElementById("resourceContainer");
-const announcementBox = document.getElementById("announcementBox");
-const searchInput = document.getElementById("searchInput");
+// ---------- Elements ----------
+
+const resourceContainer =
+document.getElementById("resourceContainer");
+
+const announcementBox =
+document.getElementById("announcementBox");
+
+const searchInput =
+document.getElementById("searchInput");
+
+const loadingScreen =
+document.getElementById("loadingScreen");
+
+const toast =
+document.getElementById("toast");
+
+const toastText =
+document.getElementById("toastText");
+
+const topBtn =
+document.getElementById("topBtn");
+
+const navbar =
+document.getElementById("navbar");
+
+const themeBtn =
+document.getElementById("themeBtn");
+
+const mobileMenu =
+document.getElementById("mobileMenu");
+
+
+// ---------- Variables ----------
 
 let allResources = [];
+
 let selectedPDF = "";
 
-// ------------------------------
-// Load Announcements
-// ------------------------------
-async function loadAnnouncements() {
+let currentTheme = "dark";
 
-    announcementBox.innerHTML = `
-        <p class="loading">
-            Loading announcement...
-        </p>
-    `;
 
-    const { data, error } = await window.supabaseClient
-        .from("announcements")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(1);
+// ---------- Loading Screen ----------
 
-    if (error) {
+window.addEventListener("load",()=>{
 
-        console.error(error);
+setTimeout(()=>{
 
-        announcementBox.innerHTML =
-        `<p>Unable to load announcements.</p>`;
+loadingScreen.style.opacity="0";
 
-        return;
-    }
+loadingScreen.style.visibility="hidden";
 
-    if (!data || data.length === 0) {
+},700);
 
-        announcementBox.innerHTML =
-        `<p>No announcements available.</p>`;
+});
 
-        return;
-    }
 
-    const announcement = data[0];
+// ---------- Toast ----------
 
-    announcementBox.innerHTML = `
+function showToast(message,type="success"){
 
-    <div class="announcement-content">
+toastText.innerText=message;
 
-        <h3>${announcement.title}</h3>
+toast.className="toast";
 
-        <p>${announcement.message}</p>
+toast.classList.add(type);
 
-    </div>
+setTimeout(()=>{
 
-    `;
+toast.classList.add("show");
+
+},50);
+
+setTimeout(()=>{
+
+toast.classList.remove("show");
+
+},3500);
 
 }
 
-// ------------------------------
-// Load Resources
-// ------------------------------
-async function loadResources() {
 
-    resourceContainer.innerHTML = `
-        <p class="loading">
-            Loading resources...
-        </p>
-    `;
+// ---------- Theme ----------
 
-    const { data, error } =
-    await window.supabaseClient
-        .from("resources")
-        .select("*")
-        .order("uploaded_date", {
-            ascending:false
-        });
+if(themeBtn){
 
-    if(error){
+themeBtn.onclick=()=>{
 
-        console.error(error);
+document.body.classList.toggle("light");
 
-        resourceContainer.innerHTML =
-        `<p>Unable to load resources.</p>`;
+currentTheme=
 
-        return;
+document.body.classList.contains("light")
 
-    }
+? "light"
 
-    allResources = data || [];
+: "dark";
 
-    displayResources(allResources);
+themeBtn.innerHTML=
+
+currentTheme==="dark"
+
+? "🌙"
+
+: "☀️";
+
+localStorage.setItem(
+
+"theme",
+
+currentTheme
+
+);
+
+};
 
 }
-// ------------------------------
-// Display Resource Cards
-// ------------------------------
+
+
+// Restore Theme
+
+const savedTheme=
+
+localStorage.getItem("theme");
+
+if(savedTheme==="light"){
+
+document.body.classList.add("light");
+
+themeBtn.innerHTML="☀️";
+
+}
+
+
+// ---------- Mobile Menu ----------
+
+let mobileOpen=false;
+
+function toggleMenu(){
+
+mobileOpen=!mobileOpen;
+
+mobileMenu.classList.toggle(
+
+"show",
+
+mobileOpen
+
+);
+
+}
+
+
+// ---------- Utility ----------
+
+function countUnique(arr,key){
+
+return new Set(
+
+arr.map(item=>item[key])
+
+).size;
+
+}
+
+
+// ---------- Statistics ----------
+
+function updateStats(){
+
+document.getElementById(
+
+"totalResources"
+
+).innerText=
+
+allResources.length;
+
+
+document.getElementById(
+
+"liveResources"
+
+).innerText=
+
+allResources.length;
+
+
+document.getElementById(
+
+"totalSubjects"
+
+).innerText=
+
+countUnique(
+
+allResources,
+
+"subject"
+
+);
+
+
+document.getElementById(
+
+"liveSubjects"
+
+).innerText=
+
+countUnique(
+
+allResources,
+
+"subject"
+
+);
+
+
+document.getElementById(
+
+"totalClasses"
+
+).innerText=
+
+countUnique(
+
+allResources,
+
+"class"
+
+);
+
+
+document.getElementById(
+
+"liveClasses"
+
+).innerText=
+
+countUnique(
+
+allResources,
+
+"class"
+
+);
+
+}
+
+
+// ---------- Skeleton Loader ----------
+
+function showSkeleton(){
+
+resourceContainer.innerHTML="";
+
+for(let i=0;i<6;i++){
+
+resourceContainer.innerHTML+=`
+
+<div class="resource-card">
+
+<div class="skeleton skeletonTitle"></div>
+
+<div class="skeleton skeletonText"></div>
+
+<div class="skeleton skeletonText"></div>
+
+<div class="skeleton skeletonBtn"></div>
+
+</div>
+
+`;
+
+}
+
+}
+
+showSkeleton();
+// ==========================================
+// PART 5B
+// Supabase Loading
+// ==========================================
+
+
+// ---------- Load Announcements ----------
+
+async function loadAnnouncements(){
+
+try{
+
+announcementBox.innerHTML=`
+
+<div class="announcement-card">
+
+<div class="spinner"></div>
+
+</div>
+
+`;
+
+const {data,error}=
+
+await window.supabaseClient
+
+.from("announcements")
+
+.select("*")
+
+.order("created_at",{ascending:false})
+
+.limit(1);
+
+
+if(error) throw error;
+
+
+if(!data || data.length===0){
+
+announcementBox.innerHTML=`
+
+<div class="announcement-card">
+
+<h3>No Announcements</h3>
+
+<p>
+
+There are currently no announcements.
+
+</p>
+
+</div>
+
+`;
+
+return;
+
+}
+
+
+const item=data[0];
+
+announcementBox.innerHTML=`
+
+<div class="announcement-card reveal glow">
+
+<h3>
+
+📢 ${item.title}
+
+</h3>
+
+<p>
+
+${item.message}
+
+</p>
+
+</div>
+
+`;
+
+}catch(err){
+
+console.error(err);
+
+announcementBox.innerHTML=`
+
+<div class="announcement-card">
+
+<h3>
+
+Unable to load announcement
+
+</h3>
+
+</div>
+
+`;
+
+showToast(
+
+"Announcement loading failed",
+
+"error"
+
+);
+
+}
+
+}
+
+
+
+// ---------- Load Resources ----------
+
+async function loadResources(){
+
+showSkeleton();
+
+try{
+
+const {data,error}=
+
+await window.supabaseClient
+
+.from("resources")
+
+.select("*")
+
+.order("uploaded_date",{
+
+ascending:false
+
+});
+
+
+if(error) throw error;
+
+
+allResources=data || [];
+
+
+updateStats();
+
+
+displayResources(
+
+allResources
+
+);
+
+
+showToast(
+
+"Resources Loaded",
+
+"success"
+
+);
+
+
+}catch(err){
+
+console.error(err);
+
+resourceContainer.innerHTML=`
+
+<div class="resource-card">
+
+<h3>
+
+Failed to load resources
+
+</h3>
+
+<p>
+
+Please try again later.
+
+</p>
+
+</div>
+
+`;
+
+showToast(
+
+"Resource loading failed",
+
+"error"
+
+);
+
+}
+
+}
+
+
+
+// ---------- Refresh Button ----------
+
+async function refreshResources(){
+
+showToast(
+
+"Refreshing...",
+
+"warning"
+
+);
+
+await loadAnnouncements();
+
+await loadResources();
+
+}
+
+
+
+// ---------- Auto Refresh ----------
+
+setInterval(()=>{
+
+loadAnnouncements();
+
+},60000);
+
+
+
+// ---------- Connection Check ----------
+
+window.addEventListener(
+
+"offline",
+
+()=>{
+
+showToast(
+
+"You are offline",
+
+"error"
+
+);
+
+}
+
+);
+
+
+window.addEventListener(
+
+"online",
+
+()=>{
+
+showToast(
+
+"Back online",
+
+"success"
+
+);
+
+refreshResources();
+
+}
+
+);
+
+
+
+// ---------- Loading Complete ----------
+
+async function loadAll(){
+
+await loadAnnouncements();
+
+await loadResources();
+
+}
+
+// ==========================================
+// PART 5C
+// Display Resources & Filters
+// ==========================================
+
+// ---------- Display Resources ----------
+
 function displayResources(resources){
 
-    if(resources.length===0){
+resourceContainer.innerHTML="";
 
-        resourceContainer.innerHTML=
-        `<p>No resources found.</p>`;
+if(resources.length===0){
 
-        return;
+resourceContainer.innerHTML=`
 
-    }
+<div class="resource-card">
 
-    resourceContainer.innerHTML="";
+<h2>
 
-    resources.forEach((resource,index)=>{
+😕 No Resources Found
 
-        const card=document.createElement("div");
+</h2>
 
-        card.className="resource-card";
+<p>
 
-        card.style.animationDelay=`${index*0.08}s`;
+Try another search or filter.
 
-        card.innerHTML=`
+</p>
 
-        <div class="resource-content">
+</div>
 
-            <h3>${resource.title}</h3>
+`;
 
-            <p>
-            ${
-            resource.description ||
-            "No description available."
-            }
-            </p>
+return;
 
-            <div class="resource-meta">
+}
 
-                <span>
-                ${resource.subject || "Subject"}
-                </span>
+resources.forEach((resource,index)=>{
 
-                <span>
-                ${resource.chapter || "Chapter"}
-                </span>
+const card=document.createElement("div");
 
-                <span>
-                Class ${resource.class || ""}
-                </span>
+card.className="resource-card reveal glow";
 
-                <span>
-                ${resource.resource_type || "Notes"}
-                </span>
+card.style.animationDelay=`${index*0.08}s`;
 
-            </div>
+const badge=
 
-            <a
-            href="#"
-            class="open-btn"
-            onclick="openProtectedResource('${resource.pdf_url}');return false;">
+index<3
 
-            Open Resource
+? `<div class="featuredBadge">🔥 NEW</div>`
 
-            </a>
+: "";
 
-        </div>
+card.innerHTML=`
 
-        `;
+${badge}
 
-        resourceContainer.appendChild(card);
+<div class="resource-content">
 
-    });
+<h3>
+
+${resource.title}
+
+</h3>
+
+<p>
+
+${resource.description ||
+
+"No description available."}
+
+</p>
+
+<div class="resource-meta">
+
+<span>
+
+📚 ${resource.subject || "Subject"}
+
+</span>
+
+<span>
+
+📖 ${resource.chapter || "Chapter"}
+
+</span>
+
+<span>
+
+🎓 Class ${resource.class || "-"}
+
+</span>
+
+<span>
+
+📄 ${resource.resource_type || "Notes"}
+
+</span>
+
+</div>
+
+<button
+
+class="open-btn"
+
+onclick="openProtectedResource('${resource.pdf_url}')">
+
+Open Resource
+
+</button>
+
+</div>
+
+`;
+
+resourceContainer.appendChild(card);
+
+});
+
+observeReveal();
 
 }
 
 
 
-// ------------------------------
-// Open Protected Resource
-// ------------------------------
-function openProtectedResource(url){
+// ---------- Subject Filters ----------
 
-    selectedPDF=url;
+const filterButtons=
 
-    document.getElementById("codeInput").value="";
+document.querySelectorAll(".filter");
 
-    document.getElementById("errorMsg").textContent="";
+filterButtons.forEach(button=>{
 
-    document.getElementById("unlockPopup").style.display="flex";
+button.addEventListener("click",()=>{
+
+filterButtons.forEach(btn=>
+
+btn.classList.remove("active")
+
+);
+
+button.classList.add("active");
+
+const filter=
+
+button.innerText.toLowerCase();
+
+if(filter==="all"){
+
+displayResources(allResources);
+
+return;
+
+}
+
+const filtered=
+
+allResources.filter(resource=>{
+
+const type=
+
+(resource.resource_type||"")
+
+.toLowerCase();
+
+return type.includes(filter);
+
+});
+
+displayResources(filtered);
+
+});
+
+});
+
+
+
+// ---------- Reveal Animation ----------
+
+function observeReveal(){
+
+const cards=
+
+document.querySelectorAll(".reveal");
+
+const observer=
+
+new IntersectionObserver(entries=>{
+
+entries.forEach(entry=>{
+
+if(entry.isIntersecting){
+
+entry.target.classList.add("active");
+
+}
+
+});
+
+},{
+
+threshold:.15
+
+});
+
+cards.forEach(card=>{
+
+observer.observe(card);
+
+});
 
 }
 
 
 
-// ------------------------------
-// Close Popup
-// ------------------------------
-function closePopup(){
+// ---------- Featured Badge ----------
 
-    document.getElementById("unlockPopup").style.display="none";
+document.head.insertAdjacentHTML(
 
-}
-// ------------------------------
-// Verify Access Code
-// ------------------------------
-async function checkAccessCode(){
+"beforeend",
 
-    const enteredCode =
-    document.getElementById("codeInput")
-    .value
-    .trim();
+`
 
-    if(!enteredCode){
+<style>
 
-        document.getElementById("errorMsg").textContent =
-        "Please enter an access code.";
+.featuredBadge{
 
-        return;
+position:absolute;
 
-    }
+top:18px;
 
-    const now = new Date().toISOString();
+right:18px;
 
-    const { data, error } =
-    await window.supabaseClient
-    .from("access_codes")
-    .select("*")
-    .eq("access_code", enteredCode)
-    .eq("active", true)
-    .or(`expires_at.is.null,expires_at.gt.${now}`);
+padding:6px 12px;
 
-    if(error){
+border-radius:30px;
 
-        console.error(error);
+font-size:12px;
 
-        document.getElementById("errorMsg").textContent =
-        "Unable to verify code.";
+font-weight:700;
 
-        return;
+background:linear-gradient(135deg,#ff2d2d,#ff8080);
 
-    }
+color:white;
 
-    if(!data || data.length===0){
+box-shadow:0 8px 20px rgba(255,45,45,.35);
 
-        document.getElementById("errorMsg").textContent =
-        "❌ Invalid or expired access code.";
-
-        return;
-
-    }
-
-    document.getElementById("unlockPopup").style.display="none";
-
-    window.open(selectedPDF,"_blank");
+z-index:2;
 
 }
 
+</style>
+
+`
+
+);
+// ==========================================
+// PART 5D
+// Search • Scroll • Particles • UI Effects
+// ==========================================
 
 
-// ------------------------------
-// Search
-// ------------------------------
+// ---------- Live Search ----------
+
 if(searchInput){
 
 searchInput.addEventListener("input",()=>{
 
-const keyword=
-searchInput.value
+const keyword=searchInput.value
 .toLowerCase()
 .trim();
 
-const filtered=
-allResources.filter(resource=>
+if(keyword===""){
+
+displayResources(allResources);
+
+return;
+
+}
+
+const filtered=allResources.filter(resource=>{
+
+return(
 
 (resource.title||"")
+.toLowerCase()
+.includes(keyword)
+
+||
+
+(resource.description||"")
 .toLowerCase()
 .includes(keyword)
 
@@ -288,11 +874,13 @@ allResources.filter(resource=>
 
 ||
 
-(resource.description||"")
+(resource.resource_type||"")
 .toLowerCase()
 .includes(keyword)
 
 );
+
+});
 
 displayResources(filtered);
 
@@ -302,14 +890,653 @@ displayResources(filtered);
 
 
 
-// ------------------------------
-// Initialize
-// ------------------------------
+// ---------- Back To Top ----------
+
+window.addEventListener("scroll",()=>{
+
+if(window.scrollY>500){
+
+topBtn.classList.add("show");
+
+navbar.classList.add("scrolled");
+
+}else{
+
+topBtn.classList.remove("show");
+
+navbar.classList.remove("scrolled");
+
+}
+
+});
+
+if(topBtn){
+
+topBtn.onclick=()=>{
+
+window.scrollTo({
+
+top:0,
+
+behavior:"smooth"
+
+});
+
+};
+
+}
+
+
+
+// ---------- Smooth Navigation ----------
+
+document.querySelectorAll('a[href^="#"]').forEach(link=>{
+
+link.addEventListener("click",function(e){
+
+const target=document.querySelector(
+
+this.getAttribute("href")
+
+);
+
+if(target){
+
+e.preventDefault();
+
+target.scrollIntoView({
+
+behavior:"smooth"
+
+});
+
+}
+
+});
+
+});
+
+
+
+
+// ---------- Floating Particles ----------
+
+const particleContainer=
+
+document.getElementById("particles");
+
+if(particleContainer){
+
+for(let i=0;i<25;i++){
+
+const particle=
+
+document.createElement("div");
+
+particle.className="particle";
+
+particle.style.left=
+
+Math.random()*100+"%";
+
+particle.style.animationDuration=
+
+(8+Math.random()*8)+"s";
+
+particle.style.animationDelay=
+
+Math.random()*6+"s";
+
+particle.style.opacity=
+
+Math.random();
+
+particleContainer.appendChild(particle);
+
+}
+
+}
+
+
+
+// ---------- Ripple Effect ----------
+
+document.addEventListener("click",e=>{
+
+const btn=e.target.closest("button,.open-btn");
+
+if(!btn)return;
+
+const ripple=
+
+document.createElement("span");
+
+ripple.className="ripple";
+
+const rect=btn.getBoundingClientRect();
+
+const size=Math.max(rect.width,rect.height);
+
+ripple.style.width=size+"px";
+
+ripple.style.height=size+"px";
+
+ripple.style.left=
+
+(e.clientX-rect.left-size/2)+"px";
+
+ripple.style.top=
+
+(e.clientY-rect.top-size/2)+"px";
+
+btn.appendChild(ripple);
+
+setTimeout(()=>{
+
+ripple.remove();
+
+},600);
+
+});
+
+
+
+
+// ---------- Keyboard Shortcut ----------
+
+document.addEventListener("keydown",e=>{
+
+if(e.key==="/"){
+
+e.preventDefault();
+
+searchInput.focus();
+
+}
+
+});
+
+
+
+
+// ---------- Welcome ----------
+
+setTimeout(()=>{
+
+showToast(
+
+"Welcome to The Scholars 🎓",
+
+"success"
+
+);
+
+},1200);
+
+
+
+
+// ---------- Resource Counter Animation ----------
+
+function animateNumber(id,target){
+
+const element=
+
+document.getElementById(id);
+
+if(!element)return;
+
+let value=0;
+
+const step=
+
+Math.max(1,
+
+Math.ceil(target/40)
+
+);
+
+const timer=
+
+setInterval(()=>{
+
+value+=step;
+
+if(value>=target){
+
+value=target;
+
+clearInterval(timer);
+
+}
+
+element.innerText=value;
+
+},25);
+
+}
+// ==========================================
+// PART 5E
+// Premium Access Code System
+// ==========================================
+
+
+// ---------- Elements ----------
+
+const unlockPopup =
+document.getElementById("unlockPopup");
+
+const codeInput =
+document.getElementById("codeInput");
+
+const errorMsg =
+document.getElementById("errorMsg");
+
+
+// ---------- Open Protected Resource ----------
+
+function openProtectedResource(pdf){
+
+selectedPDF = pdf;
+
+codeInput.value = "";
+
+errorMsg.textContent = "";
+
+unlockPopup.style.display = "flex";
+
+setTimeout(()=>{
+
+codeInput.focus();
+
+},250);
+
+}
+
+
+
+// ---------- Close Popup ----------
+
+function closePopup(){
+
+unlockPopup.style.display = "none";
+
+errorMsg.textContent = "";
+
+codeInput.value = "";
+
+}
+
+
+
+// ---------- Verify Access Code ----------
+
+async function checkAccessCode(){
+
+const code =
+codeInput.value.trim();
+
+if(code===""){
+
+errorMsg.textContent =
+"Please enter your access code.";
+
+showToast(
+"Access code required",
+"warning"
+);
+
+return;
+
+}
+
+try{
+
+const now =
+new Date().toISOString();
+
+const {data,error} =
+
+await window.supabaseClient
+
+.from("access_codes")
+
+.select("*")
+
+.eq("access_code",code)
+
+.eq("active",true)
+
+.or(`expires_at.is.null,expires_at.gt.${now}`)
+
+.limit(1);
+
+if(error) throw error;
+
+if(!data || data.length===0){
+
+errorMsg.textContent =
+"Invalid or expired access code.";
+
+codeInput.classList.add("shake");
+
+setTimeout(()=>{
+
+codeInput.classList.remove("shake");
+
+},500);
+
+showToast(
+"Access denied",
+"error"
+);
+
+return;
+
+}
+
+
+// Save for this browser session
+
+sessionStorage.setItem(
+
+"scholars_access_code",
+
+code
+
+);
+
+showToast(
+
+"Access Granted 🎉",
+
+"success"
+
+);
+
+closePopup();
+
+window.open(
+
+selectedPDF,
+
+"_blank"
+
+);
+
+}catch(err){
+
+console.error(err);
+
+errorMsg.textContent =
+"Unable to verify access code.";
+
+showToast(
+
+"Verification failed",
+
+"error"
+
+);
+
+}
+
+}
+
+
+
+// ---------- Auto Unlock ----------
+
+const savedCode =
+
+sessionStorage.getItem(
+
+"scholars_access_code"
+
+);
+
+if(savedCode){
+
+async function verifySavedCode(){
+
+try{
+
+const now =
+new Date().toISOString();
+
+const {data} =
+
+await window.supabaseClient
+
+.from("access_codes")
+
+.select("*")
+
+.eq("access_code",savedCode)
+
+.eq("active",true)
+
+.or(`expires_at.is.null,expires_at.gt.${now}`)
+
+.limit(1);
+
+if(data && data.length){
+
+window.open(
+
+selectedPDF,
+
+"_blank"
+
+);
+
+}else{
+
+sessionStorage.removeItem(
+
+"scholars_access_code"
+
+);
+
+}
+
+}catch(e){
+
+console.log(e);
+
+}
+
+}
+
+}
+
+
+
+// ---------- Enter Key ----------
+
+if(codeInput){
+
+codeInput.addEventListener(
+
+"keydown",
+
+e=>{
+
+if(e.key==="Enter"){
+
+checkAccessCode();
+
+}
+
+}
+
+);
+
+}
+
+
+
+// ---------- ESC ----------
+
+document.addEventListener(
+
+"keydown",
+
+e=>{
+
+if(e.key==="Escape"){
+
+closePopup();
+
+}
+
+}
+
+);
+
+
+
+// ---------- Click Outside ----------
+
+window.addEventListener(
+
+"click",
+
+e=>{
+
+if(e.target===unlockPopup){
+
+closePopup();
+
+}
+
+}
+
+);
+
+
+
+// ---------- Shake Animation ----------
+
+document.head.insertAdjacentHTML(
+
+"beforeend",
+
+`
+
+<style>
+
+.shake{
+
+animation:shake .45s;
+
+}
+
+@keyframes shake{
+
+0%,100%{
+
+transform:translateX(0);
+
+}
+
+20%{
+
+transform:translateX(-8px);
+
+}
+
+40%{
+
+transform:translateX(8px);
+
+}
+
+60%{
+
+transform:translateX(-8px);
+
+}
+
+80%{
+
+transform:translateX(8px);
+
+}
+
+}
+
+</style>
+
+`
+
+);
+
+// ==========================================
+// PART 5F
+// Final Initialization & Optimization
+// ==========================================
+
+
+// ---------- Initialize ----------
+
 async function init(){
 
-    await loadAnnouncements();
+try{
 
-    await loadResources();
+showSkeleton();
+
+await loadAnnouncements();
+
+await loadResources();
+
+animateNumber(
+"totalResources",
+allResources.length
+);
+
+animateNumber(
+"liveResources",
+allResources.length
+);
+
+animateNumber(
+"totalSubjects",
+countUnique(allResources,"subject")
+);
+
+animateNumber(
+"liveSubjects",
+countUnique(allResources,"subject")
+);
+
+animateNumber(
+"totalClasses",
+countUnique(allResources,"class")
+);
+
+animateNumber(
+"liveClasses",
+countUnique(allResources,"class")
+);
+
+observeReveal();
+
+showToast(
+"Welcome to The Scholars 🎓",
+"success"
+);
+
+}catch(err){
+
+console.error(err);
+
+showToast(
+"Initialization Failed",
+"error"
+);
+
+}
 
 }
 
@@ -317,10 +1544,208 @@ init();
 
 
 
-// ------------------------------
-// Close popup using ESC key
-// ------------------------------
-document.addEventListener("keydown",e=>{
+// ---------- Lazy Loading ----------
+
+const lazyObserver=
+
+new IntersectionObserver(entries=>{
+
+entries.forEach(entry=>{
+
+if(entry.isIntersecting){
+
+entry.target.classList.add("loaded");
+
+lazyObserver.unobserve(entry.target);
+
+}
+
+});
+
+},{
+threshold:0.1
+});
+
+document.querySelectorAll(
+
+".resource-card"
+
+).forEach(card=>{
+
+lazyObserver.observe(card);
+
+});
+
+
+
+
+// ---------- Mobile Menu ----------
+
+document.querySelectorAll(
+
+"#mobileMenu a"
+
+).forEach(link=>{
+
+link.onclick=()=>{
+
+mobileMenu.classList.remove("show");
+
+mobileOpen=false;
+
+};
+
+});
+
+
+
+
+// ---------- Hide Loading Screen ----------
+
+window.addEventListener(
+
+"load",
+
+()=>{
+
+setTimeout(()=>{
+
+loadingScreen.style.opacity="0";
+
+loadingScreen.style.pointerEvents="none";
+
+setTimeout(()=>{
+
+loadingScreen.remove();
+
+},500);
+
+},500);
+
+});
+
+
+
+
+// ---------- Footer Year ----------
+
+const yearSpan=
+
+document.getElementById("year");
+
+if(yearSpan){
+
+yearSpan.innerText=
+
+new Date().getFullYear();
+
+}
+
+
+
+
+// ---------- Performance ----------
+
+window.addEventListener(
+
+"pageshow",
+
+()=>{
+
+console.log(
+
+"The Scholars Ready"
+
+);
+
+});
+
+
+
+
+// ---------- Prevent Double Click ----------
+
+document.addEventListener(
+
+"dblclick",
+
+e=>{
+
+if(
+
+e.target.classList.contains(
+
+"open-btn"
+
+)
+
+){
+
+e.preventDefault();
+
+}
+
+});
+
+
+
+
+// ---------- Easter Egg ----------
+
+let scholarClicks=0;
+
+const logo=
+
+document.querySelector(".logo");
+
+if(logo){
+
+logo.onclick=()=>{
+
+scholarClicks++;
+
+if(scholarClicks===10){
+
+showToast(
+
+"🎉 Hidden Mode Activated!",
+
+"success"
+
+);
+
+document.body.classList.toggle(
+
+"party-mode"
+
+);
+
+scholarClicks=0;
+
+}
+
+};
+
+}
+
+
+
+
+// ---------- Keyboard Shortcuts ----------
+
+document.addEventListener(
+
+"keydown",
+
+e=>{
+
+if(e.ctrlKey && e.key==="k"){
+
+e.preventDefault();
+
+searchInput.focus();
+
+}
 
 if(e.key==="Escape"){
 
@@ -332,17 +1757,34 @@ closePopup();
 
 
 
-// ------------------------------
-// Close popup when clicking outside
-// ------------------------------
-window.addEventListener("click",e=>{
 
-const popup=document.getElementById("unlockPopup");
+// ---------- Console Branding ----------
 
-if(e.target===popup){
+console.log(
 
-closePopup();
+"%cThe Scholars",
 
-}
+"font-size:28px;color:#ff2d2d;font-weight:bold;"
 
-});
+);
+
+console.log(
+
+"%cPremium Learning Platform",
+
+"font-size:14px;color:white;"
+
+);
+
+
+
+
+// ---------- Finish ----------
+
+showToast(
+
+"System Ready ✅",
+
+"success"
+
+);

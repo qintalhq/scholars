@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+<title>
+The Scholars Admin Panel
+</title>
+
+
+<link rel="stylesheet" href="css/admin.css">
+
+
+</head>
+
+
+<body>
+
+
+<!--==============================
+LOGIN SCREEN
+==============================-->
+
+<div class="admin-login" id="loginBox">
+
+
+<div class="admin-login-card">
+
+
+<h1>
+
+The Scholars
+
+</h1>
+
+
+<p>
+
+Admin Panel Login
+
+</p>
+
+
+
+<input
+
+type="email"
+
+id="adminEmail"
+
+placeholder="Admin Email"
+
+>
+
+
+
+<input
+
+type="password"
+
+id="adminPassword"
+
+placeholder="Password"
+
+>
+
+
+
+<button
+
+onclick="adminLogin()">
+
+Login
+
+</button>
+
+
+
+<p id="loginError"></p>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<!--==============================
+ADMIN DASHBOARD
+==============================-->
+
+<div class="admin-dashboard" id="dashboard">
+
+
+
+<aside class="sidebar">
+
+
+<h2>
+
+TS Admin
+
+</h2>
+
+
+<a href="#dashboard">
+
+Dashboard
+
+</a>
+
+
+<a href="#resources">
+
+Resources
+
+</a>
+
+
+<a href="#announcements">
+
+Announcements
+
+</a>
+
+
+<a href="#codes">
+
+Access Codes
+
+</a>
+
+
+
+<button onclick="logout()">
+
+Logout
+
+</button>
+
+
+</aside>
+
+
+
+
+
+
+<main class="admin-main">
+
+
+
+<header class="admin-header">
+
+
+<h1>
+
+Dashboard
+
+</h1>
+
+
+</header>
+
+
+
+
+
+<section class="admin-stats">
+
+
+<div class="admin-card">
+
+<h2 id="resourceCount">
+
+0
+
+</h2>
+
+<p>
+
+Resources
+
+</p>
+
+</div>
+
+
+
+
+<div class="admin-card">
+
+<h2 id="announcementCount">
+
+0
+
+</h2>
+
+<p>
+
+Announcements
+
+</p>
+
+</div>
+
+
+
+
+<div class="admin-card">
+
+<h2 id="codeCount">
+
+0
+
+</h2>
+
+<p>
+
+Access Codes
+
+</p>
+
+</div>
+
+
+
+</section>
+
+
+
+
+</main>
+
+
+</div>
+
+
+
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="./js/supabase.js"></script>
+
+<script src="./js/admin.js"></script>
+
+
+</body>
+
+</html>

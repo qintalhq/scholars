@@ -13,7 +13,7 @@ The Scholars Admin Panel
 </title>
 
 
-<link rel="stylesheet" href="css/admin.css">
+<link rel="stylesheet" href="../css/admin.css">
 
 
 </head>
@@ -23,8 +23,9 @@ The Scholars Admin Panel
 
 
 <!--==============================
-LOGIN SCREEN
+LOGIN
 ==============================-->
+
 
 <div class="admin-login" id="loginBox">
 
@@ -33,16 +34,12 @@ LOGIN SCREEN
 
 
 <h1>
-
 The Scholars
-
 </h1>
 
 
 <p>
-
 Admin Panel Login
-
 </p>
 
 
@@ -71,9 +68,7 @@ placeholder="Password"
 
 
 
-<button
-
-onclick="adminLogin()">
+<button onclick="adminLogin()">
 
 Login
 
@@ -96,48 +91,45 @@ Login
 
 
 <!--==============================
-ADMIN DASHBOARD
+DASHBOARD
 ==============================-->
+
 
 <div class="admin-dashboard" id="dashboard">
 
 
 
+<!-- SIDEBAR -->
+
 <aside class="sidebar">
 
 
 <h2>
-
 TS Admin
-
 </h2>
 
 
-<a href="#dashboard">
 
+<a href="#dashboardHome">
 Dashboard
-
 </a>
+
 
 
 <a href="#resources">
-
 Resources
-
 </a>
+
 
 
 <a href="#announcements">
-
 Announcements
-
 </a>
 
 
+
 <a href="#codes">
-
 Access Codes
-
 </a>
 
 
@@ -149,37 +141,41 @@ Logout
 </button>
 
 
+
 </aside>
 
 
 
 
 
+<!-- MAIN -->
 
 <main class="admin-main">
-
 
 
 <header class="admin-header">
 
 
 <h1>
-
 Dashboard
-
 </h1>
 
 
+
 </header>
+<!--==============================
+DASHBOARD STATS
+==============================-->
 
 
+<section id="dashboardHome">
 
 
-
-<section class="admin-stats">
+<div class="admin-stats">
 
 
 <div class="admin-card">
+
 
 <h2 id="resourceCount">
 
@@ -187,18 +183,22 @@ Dashboard
 
 </h2>
 
+
 <p>
 
 Resources
 
 </p>
 
+
 </div>
 
 
 
 
+
 <div class="admin-card">
+
 
 <h2 id="announcementCount">
 
@@ -206,18 +206,22 @@ Resources
 
 </h2>
 
+
 <p>
 
 Announcements
 
 </p>
 
+
 </div>
 
 
 
 
+
 <div class="admin-card">
+
 
 <h2 id="codeCount">
 
@@ -225,19 +229,533 @@ Announcements
 
 </h2>
 
+
 <p>
 
 Access Codes
 
 </p>
 
+
 </div>
 
+
+
+</div>
 
 
 </section>
 
 
+
+
+
+
+
+<!--==============================
+RESOURCE MANAGEMENT
+==============================-->
+
+
+<section id="resources">
+
+
+<h2>
+
+Add New Resource
+
+</h2>
+
+
+
+
+<form id="resourceForm">
+
+
+
+<input
+
+type="text"
+
+id="resourceTitle"
+
+placeholder="Resource title"
+
+required
+
+>
+
+
+
+
+<textarea
+
+id="resourceDescription"
+
+placeholder="Description">
+
+</textarea>
+
+
+
+
+
+<input
+
+type="text"
+
+id="resourceSubject"
+
+placeholder="Subject"
+
+>
+
+
+
+
+<input
+
+type="text"
+
+id="resourceChapter"
+
+placeholder="Chapter"
+
+>
+
+
+
+
+<input
+
+type="text"
+
+id="resourceClass"
+
+placeholder="Class"
+
+>
+
+
+
+
+<select id="resourceType">
+
+
+<option value="notes">
+
+Notes
+
+</option>
+
+
+<option value="pdf">
+
+PDF
+
+</option>
+
+
+<option value="paper">
+
+Question Paper
+
+</option>
+
+
+</select>
+
+
+
+
+
+<input
+
+type="url"
+
+id="resourcePdf"
+
+placeholder="PDF URL"
+
+required
+
+>
+
+
+
+
+<button
+
+class="admin-btn"
+
+type="submit">
+
+Add Resource
+
+</button>
+
+
+
+</form>
+
+
+
+</section>
+<!--==============================
+RESOURCE TABLE
+==============================-->
+
+
+<section>
+
+
+<div class="admin-section-header">
+
+
+<h2>
+
+Manage Resources
+
+</h2>
+
+
+
+<input
+
+type="search"
+
+id="adminSearch"
+
+placeholder="Search resources..."
+
+>
+
+
+</div>
+
+
+
+
+
+<table class="admin-table">
+
+
+<thead>
+
+<tr>
+
+<th>
+Title
+</th>
+
+
+<th>
+Subject
+</th>
+
+
+<th>
+Class
+</th>
+
+
+<th>
+Action
+</th>
+
+
+</tr>
+
+</thead>
+
+
+
+<tbody id="adminResourceList">
+
+
+<!-- Resources load here -->
+
+
+</tbody>
+
+
+
+</table>
+
+
+</section>
+
+
+
+
+
+
+
+
+<!--==============================
+ANNOUNCEMENTS
+==============================-->
+
+
+
+<section id="announcements">
+
+
+
+<h2>
+
+Announcements
+
+</h2>
+
+
+
+
+
+<form id="announcementForm">
+
+
+
+<input
+
+type="text"
+
+id="announcementTitle"
+
+placeholder="Announcement title"
+
+required
+
+>
+
+
+
+
+<textarea
+
+id="announcementMessage"
+
+placeholder="Announcement message"
+
+required>
+
+</textarea>
+
+
+
+
+
+<button
+
+class="admin-btn"
+
+type="submit">
+
+Add Announcement
+
+</button>
+
+
+
+</form>
+
+
+
+
+
+<table class="admin-table">
+
+
+<thead>
+
+<tr>
+
+
+<th>
+
+Title
+
+</th>
+
+
+<th>
+
+Message
+
+</th>
+
+
+<th>
+
+Action
+
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+<tbody id="announcementList">
+
+
+<!-- Announcements load here -->
+
+
+</tbody>
+
+
+</table>
+
+
+
+</section>
+<!--==============================
+ACCESS CODE MANAGEMENT
+==============================-->
+
+
+<section id="codes">
+
+
+
+<h2>
+
+Access Codes
+
+</h2>
+
+
+
+
+
+<form id="codeForm">
+
+
+
+<input
+
+type="text"
+
+id="accessCode"
+
+placeholder="Enter access code"
+
+required
+
+>
+
+
+
+
+<label>
+
+Expiry Date
+
+</label>
+
+
+
+<input
+
+type="datetime-local"
+
+id="codeExpiry"
+
+>
+
+
+
+
+<button
+
+class="admin-btn"
+
+type="submit">
+
+Create Code
+
+</button>
+
+
+
+</form>
+
+
+
+
+
+
+
+<table class="admin-table">
+
+
+<thead>
+
+<tr>
+
+
+<th>
+
+Code
+
+</th>
+
+
+
+<th>
+
+Status
+
+</th>
+
+
+
+<th>
+
+Expiry
+
+</th>
+
+
+
+<th>
+
+Action
+
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+<tbody id="codeList">
+
+
+<!-- Access codes load here -->
+
+
+</tbody>
+
+
+</table>
+
+
+
+
+
+</section>
+
+  <!--==============================
+DASHBOARD END
+==============================-->
 
 
 </main>
@@ -250,12 +768,30 @@ Access Codes
 
 
 
+<!--==============================
+SCRIPTS
+==============================-->
+
+
+
+<!-- Supabase Library -->
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<script src="./js/supabase.js"></script>
 
-<script src="./js/admin.js"></script>
+
+
+<!-- Supabase Configuration -->
+
+<script src="../supabase.js"></script>
+
+
+
+
+<!-- Admin Logic -->
+
+<script src="../js/admin.js"></script>
+
 
 
 </body>

@@ -78,7 +78,16 @@ async function loadAnnouncements() {
 // ------------------------------
 async function loadResources() {
 
+console.log("Loading resources...");
 
+const { data, error } =
+    await window.supabaseClient
+    .from("resources")
+    .select("*")
+    .order("uploaded_date", { ascending: false });
+
+console.log(data);
+console.log(error);
 
   
 

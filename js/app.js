@@ -1,1034 +1,139 @@
-/*==================================================
-THE SCHOLARS
-Premium App v3.0
+<!DOCTYPE html>
+<html lang="en">
 
-app.js
-Part 1 - Core Setup
-==================================================*/
+<head>
 
+<meta charset="UTF-8">
 
-//==============================
-// DOM ELEMENTS
-//==============================
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-const resourceContainer =
-document.getElementById("resourceContainer");
 
-const announcementBox =
-document.getElementById("announcementBox");
+<title>
+The Scholars - Premium Learning
+</title>
 
-const searchInput =
-document.getElementById("searchInput");
 
-const loadingScreen =
-document.getElementById("loadingScreen");
+<meta name="description"
+content="The Scholars - Notes, Resources and Learning Platform">
 
-const toast =
-document.getElementById("toast");
 
-const toastText =
-document.getElementById("toastText");
+<!-- Main CSS -->
 
-const topButton =
-document.getElementById("topBtn");
+<link rel="stylesheet" href="css/style.css">
 
-const navbar =
-document.getElementById("navbar");
 
-const themeButton =
-document.getElementById("themeBtn");
+</head>
 
-const mobileMenu =
-document.getElementById("mobileMenu");
 
+<body>
 
-// Access Popup
 
-const unlockPopup =
-document.getElementById("unlockPopup");
+<!--==============================
+LOADING SCREEN
+==============================-->
 
-const codeInput =
-document.getElementById("codeInput");
+<div class="ts-loading" id="loadingScreen">
 
-const errorMessage =
-document.getElementById("errorMsg");
-
-
-
-//==============================
-// GLOBAL VARIABLES
-//==============================
-
-let allResources = [];
-
-let selectedPDF = "";
-
-let currentTheme =
-localStorage.getItem("theme") || "dark";
-
-
-
-//==============================
-// APPLY THEME
-//==============================
-
-function applyTheme(){
-
-if(currentTheme==="light"){
-
-document.body.classList.add("light");
-
-}
-
-else{
-
-document.body.classList.remove("light");
-
-}
-
-}
-
-
-applyTheme();
-
-
-
-//==============================
-// TOAST SYSTEM
-//==============================
-
-function showToast(message,type="success"){
-
-if(!toast || !toastText)
-return;
-
-
-toastText.innerText = message;
-
-
-toast.className =
-"ts-toast";
-
-
-toast.classList.add(type);
-
-
-setTimeout(()=>{
-
-toast.classList.add("show");
-
-},50);
-
-
-
-setTimeout(()=>{
-
-toast.classList.remove("show");
-
-},3500);
-
-
-}
-
-
-
-//==============================
-// LOADING SCREEN
-//==============================
-
-function hideLoading(){
-
-if(!loadingScreen)
-return;
-
-
-loadingScreen.style.opacity="0";
-
-
-setTimeout(()=>{
-
-loadingScreen.style.display="none";
-
-},500);
-
-
-}
-
-
-
-//==============================
-// SKELETON LOADER
-//==============================
-
-function showSkeleton(){
-
-if(!resourceContainer)
-return;
-
-
-resourceContainer.innerHTML="";
-
-
-for(let i=0;i<6;i++){
-
-
-resourceContainer.innerHTML += `
-
-<div class="ts-card">
-
-<div class="ts-skeleton ts-skeleton-title"></div>
-
-<div class="ts-skeleton ts-skeleton-text"></div>
-
-<div class="ts-skeleton ts-skeleton-text"></div>
-
-<div class="ts-skeleton ts-skeleton-btn"></div>
-
-</div>
-
-`;
-
-}
-
-
-}
-
-
-
-//==============================
-// MOBILE MENU
-//==============================
-
-function toggleMenu(){
-
-if(!mobileMenu)
-return;
-
-
-mobileMenu.classList.toggle("show");
-
-}
-
-
-
-//==============================
-// THEME BUTTON
-//==============================
-
-if(themeButton){
-
-themeButton.addEventListener(
-
-"click",
-
-()=>{
-
-
-if(currentTheme==="dark"){
-
-currentTheme="light";
-
-}
-
-else{
-
-currentTheme="dark";
-
-}
-
-
-localStorage.setItem(
-
-"theme",
-
-currentTheme
-
-);
-
-
-applyTheme();
-
-
-}
-
-);
-
-}
-
-
-
-//==============================
-// NAVBAR SCROLL EFFECT
-//==============================
-
-window.addEventListener(
-
-"scroll",
-
-()=>{
-
-
-if(!navbar)
-return;
-
-
-if(window.scrollY>50){
-
-navbar.classList.add(
-"scrolled"
-);
-
-}
-
-else{
-
-navbar.classList.remove(
-"scrolled"
-);
-
-}
-
-
-if(topButton){
-
-if(window.scrollY>500){
-
-topButton.classList.add(
-"show"
-);
-
-}
-
-else{
-
-topButton.classList.remove(
-"show"
-);
-
-}
-
-}
-
-
-}
-
-);
-
-
-
-//==============================
-// BACK TO TOP
-//==============================
-
-if(topButton){
-
-topButton.onclick=()=>{
-
-
-window.scrollTo({
-
-top:0,
-
-behavior:"smooth"
-
-});
-
-
-};
-
-}
-
-
-
-//==============================
-// UTILITY FUNCTIONS
-//==============================
-
-
-function escapeHTML(text){
-
-if(!text)
-return "";
-
-
-return text
-
-.replace(/&/g,"&amp;")
-
-.replace(/</g,"&lt;")
-
-.replace(/>/g,"&gt;")
-
-.replace(/"/g,"&quot;")
-
-.replace(/'/g,"&#039;");
-
-}
-
-
-
-function countUnique(array,key){
-
-return new Set(
-
-array
-
-.map(item=>item[key])
-
-.filter(Boolean)
-
-).size;
-
-
-}
-/*==================================================
-PART 2
-Supabase Loading System
-==================================================*/
-
-
-//==============================
-// LOAD ANNOUNCEMENTS
-//==============================
-
-async function loadAnnouncements(){
-
-if(!announcementBox)
-return;
-
-
-announcementBox.innerHTML=`
-
-<div class="ts-skeleton ts-skeleton-title"></div>
-
-<div class="ts-skeleton ts-skeleton-text"></div>
-
-`;
-
-
-
-try{
-
-
-const {data,error}=
-
-await window.supabaseClient
-
-.from("announcements")
-
-.select("*")
-
-.order(
-
-"created_at",
-
-{
-
-ascending:false
-
-}
-
-)
-
-.limit(1);
-
-
-
-if(error)
-
-throw error;
-
-
-
-if(!data || data.length===0){
-
-
-announcementBox.innerHTML=`
-
-<div class="ts-announcement">
+<div class="ts-spinner"></div>
 
 <h3>
-
-No Announcements
-
+Loading The Scholars...
 </h3>
-
-<p>
-
-There are no announcements available currently.
-
-</p>
 
 </div>
 
-`;
-
-return;
-
-}
 
 
 
-const announcement=data[0];
 
+<!--==============================
+BACKGROUND PARTICLES
+==============================-->
 
-
-announcementBox.innerHTML=`
-
-<div class="ts-announcement ts-reveal active">
-
-<h3>
-
-📢 ${escapeHTML(announcement.title)}
-
-</h3>
-
-
-<p>
-
-${escapeHTML(announcement.message)}
-
-</p>
-
+<div class="ts-particles" id="particles">
 
 </div>
 
-`;
 
 
 
-}
 
-catch(error){
 
+<!--==============================
+NAVBAR
+==============================-->
 
-console.error(
+<header class="ts-navbar" id="navbar">
 
-"Announcement Error:",
 
-error
+<div class="ts-nav-container">
 
-);
 
 
-
-announcementBox.innerHTML=`
-
-<div class="ts-announcement">
-
-<h3>
-
-Unable to load announcement
-
-</h3>
-
-<p>
-
-Please try again later.
-
-</p>
-
-</div>
-
-`;
-
-
-showToast(
-
-"Announcement loading failed",
-
-"error"
-
-);
-
-
-}
-
-
-
-}
-
-
-
-
-
-//==============================
-// LOAD RESOURCES
-//==============================
-
-
-async function loadResources(){
-
-
-if(!resourceContainer)
-
-return;
-
-
-
-showSkeleton();
-
-
-
-try{
-
-
-const {data,error}=
-
-await window.supabaseClient
-
-.from("resources")
-
-.select("*")
-
-.order(
-
-"uploaded_date",
-
-{
-
-ascending:false
-
-}
-
-);
-
-
-
-if(error)
-
-throw error;
-
-
-
-allResources=data || [];
-
-
-
-updateStatistics();
-
-
-
-displayResources(allResources);
-
-
-
-}
-
-catch(error){
-
-
-console.error(
-
-"Resource Error:",
-
-error
-
-);
-
-
-
-resourceContainer.innerHTML=`
-
-<div class="ts-empty">
-
-<h3>
-
-Failed to load resources
-
-</h3>
-
-
-<p>
-
-Check your internet connection and try again.
-
-</p>
-
-</div>
-
-`;
-
-
-
-showToast(
-
-"Resource loading failed",
-
-"error"
-
-);
-
-
-
-}
-
-
-
-}
-
-
-
-
-
-//==============================
-// STATISTICS
-//==============================
-
-
-function updateStatistics(){
-
-
-const totalResources=
-
-document.getElementById(
-
-"totalResources"
-
-);
-
-
-const totalSubjects=
-
-document.getElementById(
-
-"totalSubjects"
-
-);
-
-
-const totalClasses=
-
-document.getElementById(
-
-"totalClasses"
-
-);
-
-
-
-if(totalResources)
-
-totalResources.innerText=
-
-allResources.length;
-
-
-
-if(totalSubjects)
-
-totalSubjects.innerText=
-
-countUnique(
-
-allResources,
-
-"subject"
-
-);
-
-
-
-if(totalClasses)
-
-totalClasses.innerText=
-
-countUnique(
-
-allResources,
-
-"class"
-
-);
-
-
-
-}
-
-
-
-
-
-//==============================
-// REFRESH SYSTEM
-//==============================
-
-
-async function refreshData(){
-
-
-showToast(
-
-"Refreshing data...",
-
-"warning"
-
-);
-
-
-
-await loadAnnouncements();
-
-await loadResources();
-
-
-
-showToast(
-
-"Updated successfully",
-
-"success"
-
-);
-
-
-}
-
-
-
-
-
-//==============================
-// CONNECTION STATUS
-//==============================
-
-
-window.addEventListener(
-
-"offline",
-
-()=>{
-
-
-showToast(
-
-"No internet connection",
-
-"error"
-
-);
-
-
-}
-
-);
-
-
-
-window.addEventListener(
-
-"online",
-
-()=>{
-
-
-showToast(
-
-"Connection restored",
-
-"success"
-
-);
-
-
-refreshData();
-
-
-});
-
-
-
-
-
-//==============================
-// AUTO UPDATE ANNOUNCEMENTS
-//==============================
-
-
-setInterval(()=>{
-
-
-loadAnnouncements();
-
-
-},60000);
-
-/*==================================================
-PART 3
-Resource Cards • Search • Filters
-==================================================*/
-
-
-//==============================
-// DISPLAY RESOURCES
-//==============================
-
-function displayResources(resources){
-
-
-if(!resourceContainer)
-
-return;
-
-
-
-if(resources.length===0){
-
-
-resourceContainer.innerHTML=`
-
-<div class="ts-empty">
-
-<h3>
-
-No Resources Found
-
-</h3>
-
-<p>
-
-Try searching something else.
-
-</p>
-
-</div>
-
-`;
-
-return;
-
-}
-
-
-
-resourceContainer.innerHTML="";
-
-
-
-resources.forEach((resource,index)=>{
-
-
-
-const card=document.createElement("div");
-
-
-card.className=
-
-"ts-card ts-reveal";
-
-
-
-card.style.animationDelay=
-
-`${index*0.08}s`;
-
-
-
-const isNew=index<3;
-
-
-
-card.innerHTML=`
-
-${isNew ? `
-
-<div class="ts-badge-new">
-
-NEW
-
-</div>
-
-`:""}
-
-
-
-<h3 class="ts-card-title">
-
-${escapeHTML(resource.title)}
-
-</h3>
-
-
-
-<p class="ts-card-desc">
-
-${escapeHTML(
-
-resource.description ||
-
-"No description available."
-
-)}
-
-</p>
-
-
-
-<div class="ts-meta">
-
+<a href="#" class="ts-logo">
 
 <span>
-
-📚 ${escapeHTML(
-
-resource.subject || "Subject"
-
-)}
-
+T
 </span>
 
+The Scholars
 
-
-<span>
-
-📖 ${escapeHTML(
-
-resource.chapter || "Chapter"
-
-)}
-
-</span>
+</a>
 
 
 
-<span>
-
-🎓 Class ${escapeHTML(
-
-resource.class || "-"
-
-)}
-
-</span>
 
 
-
-<span>
-
-📄 ${escapeHTML(
-
-resource.resource_type || "Notes"
-
-)}
-
-</span>
+<nav class="ts-nav-links">
 
 
+<a href="#home">
+Home
+</a>
 
-</div>
+
+<a href="#resources">
+Resources
+</a>
+
+
+<a href="#announcements">
+Announcements
+</a>
+
+
+<a href="#about">
+About
+</a>
 
 
 
-<div class="ts-card-footer">
+</nav>
+
+
+
+
+
+<div class="ts-nav-actions">
+
+
+
+<button 
+class="ts-icon-btn"
+id="themeBtn">
+
+🌙
+
+</button>
+
+
 
 
 <button
+class="ts-icon-btn ts-menu-btn"
+onclick="toggleMenu()">
 
-class="ts-btn-open"
-
-onclick="openProtectedResource('${resource.pdf_url}')">
-
-Open Resource
+☰
 
 </button>
 
@@ -1036,709 +141,769 @@ Open Resource
 
 </div>
 
-`;
 
 
 
-resourceContainer.appendChild(card);
+</div>
 
 
+</header>
 
-});
 
 
 
-activateReveal();
 
 
-}
+<!--==============================
+MOBILE MENU
+==============================-->
 
 
+<div class="ts-mobile-menu" id="mobileMenu">
 
 
+<a href="#home">
+Home
+</a>
 
-//==============================
-// SEARCH SYSTEM
-//==============================
 
+<a href="#resources">
+Resources
+</a>
 
-if(searchInput){
 
+<a href="#announcements">
+Announcements
+</a>
 
-searchInput.addEventListener(
 
-"input",
+<a href="#about">
+About
+</a>
 
-()=>{
 
+</div>
+<!--==============================
+HERO SECTION
+==============================-->
 
-const keyword=
+<main>
 
-searchInput.value
 
-.toLowerCase()
+<section class="ts-hero ts-section" id="home">
 
-.trim();
 
+<div class="ts-container">
 
 
-if(keyword===""){
+<div class="ts-hero-grid">
 
 
-displayResources(allResources);
 
-return;
+<!-- Hero Text -->
 
-}
+<div class="ts-hero-content">
 
 
+<div class="ts-badge">
 
-const filtered=
+🎓 Premium Learning Platform
 
-allResources.filter(resource=>{
+</div>
 
 
-return(
 
-(resource.title||"")
+<h1>
 
-.toLowerCase()
+Learn Better.
 
-.includes(keyword)
+<br>
 
+Grow Faster.
 
-||
+<br>
 
-(resource.description||"")
+<span>
+With The Scholars
+</span>
 
-.toLowerCase()
+</h1>
 
-.includes(keyword)
 
 
+<p>
 
-||
+Access quality study resources,
+notes, announcements and learning
+materials in one professional platform.
 
-(resource.subject||"")
+</p>
 
-.toLowerCase()
 
-.includes(keyword)
 
 
+<div class="ts-btn-group">
 
-||
 
-(resource.chapter||"")
+<a href="#resources"
+class="ts-btn ts-btn-primary">
 
-.toLowerCase()
+Explore Resources
 
-.includes(keyword)
+</a>
 
 
 
-||
+<a href="#announcements"
+class="ts-btn ts-btn-outline">
 
-(resource.resource_type||"")
+Latest Updates
 
-.toLowerCase()
+</a>
 
-.includes(keyword)
 
-);
 
+</div>
 
-});
 
 
 
-displayResources(filtered);
 
+<!-- Search -->
 
+<div class="ts-search">
 
-}
 
-);
+<input
 
+type="search"
 
-}
+id="searchInput"
 
+placeholder="Search resources, subjects, chapters..."
 
+>
 
 
-//==============================
-// FILTER SYSTEM
-//==============================
+<button>
 
+Search
 
-const filterButtons=
+</button>
 
-document.querySelectorAll(
 
-".ts-filter"
+</div>
 
-);
 
 
+</div>
 
-filterButtons.forEach(button=>{
 
 
-button.addEventListener(
 
-"click",
 
-()=>{
 
+<!-- Hero Card -->
 
-filterButtons.forEach(btn=>{
+<div class="ts-hero-card ts-glass">
 
-btn.classList.remove("active");
 
-});
 
+<div class="ts-status">
 
+<span class="ts-status-dot"></span>
 
-button.classList.add("active");
+Live Platform
 
+</div>
 
 
-const filter=
 
-button.dataset.filter;
 
+<h2>
 
+The Scholars
 
-if(!filter || filter==="all"){
+</h2>
 
 
-displayResources(allResources);
+<p>
 
-return;
+Your digital classroom for
+organized learning resources.
 
-}
+</p>
 
 
 
-const filtered=
 
-allResources.filter(resource=>{
+</div>
 
 
-return(
 
-resource.resource_type &&
 
-resource.resource_type
+</div>
 
-.toLowerCase()
 
-===filter.toLowerCase()
+</div>
 
-);
 
+</section>
 
-});
 
 
 
-displayResources(filtered);
 
 
 
-}
 
-);
+<!--==============================
+STATISTICS
+==============================-->
 
+<section class="ts-section">
 
-});
 
+<div class="ts-container">
 
 
+<div class="ts-stats">
 
-//==============================
-// SCROLL REVEAL
-//==============================
 
 
-function activateReveal(){
+<div class="ts-stat ts-glass">
 
 
-const elements=
+<h2 id="totalResources">
 
-document.querySelectorAll(
+0
 
-".ts-reveal"
+</h2>
 
-);
 
+<p>
 
+Total Resources
 
-const observer=
+</p>
 
-new IntersectionObserver(
 
-(entries)=>{
+</div>
 
 
-entries.forEach(entry=>{
 
 
-if(entry.isIntersecting){
+<div class="ts-stat ts-glass">
 
 
-entry.target.classList.add(
+<h2 id="totalSubjects">
 
-"active"
+0
 
-);
+</h2>
 
 
-observer.unobserve(
+<p>
 
-entry.target
+Subjects
 
-);
+</p>
 
 
-}
+</div>
 
 
-});
 
 
-},
 
-{
+<div class="ts-stat ts-glass">
 
-threshold:.15
 
-}
+<h2 id="totalClasses">
 
-);
+0
 
+</h2>
 
 
-elements.forEach(element=>{
+<p>
 
+Classes
 
-observer.observe(element);
+</p>
 
 
-});
+</div>
 
 
-}
-/*==================================================
-PART 4
-Access Code Protection System
-==================================================*/
 
 
-//==============================
-// OPEN PROTECTED RESOURCE
-//==============================
 
-function openProtectedResource(pdfUrl){
+<div class="ts-stat ts-glass">
 
 
-if(!unlockPopup){
+<h2>
 
-console.error(
-"Access popup not found"
-);
+24/7
 
-return;
+</h2>
 
-}
 
+<p>
 
-selectedPDF = pdfUrl;
+Learning Access
 
+</p>
 
-if(codeInput){
 
-codeInput.value="";
+</div>
 
-}
 
 
-if(errorMessage){
+</div>
 
-errorMessage.innerText="";
 
-}
+</div>
 
 
-unlockPopup.classList.add("active");
+</section>
+<!--==============================
+ANNOUNCEMENTS SECTION
+==============================-->
 
+<section 
+class="ts-section"
+id="announcements">
 
-}
 
+<div class="ts-container">
 
 
-//==============================
-// CLOSE POPUP
-//==============================
 
-function closePopup(){
+<div class="ts-section-header">
 
 
-if(!unlockPopup)
+<div class="ts-section-text">
 
-return;
 
+<div class="ts-section-tag">
 
+Latest Updates
 
-unlockPopup.classList.remove("active");
+</div>
 
 
+<h2 class="ts-title">
 
-if(codeInput){
+Announcements
 
-codeInput.value="";
+</h2>
 
-}
 
+<p class="ts-subtitle">
 
+Stay updated with important
+notices and platform news.
 
-if(errorMessage){
+</p>
 
-errorMessage.innerText="";
 
-}
+</div>
 
 
-}
+</div>
 
 
 
 
-//==============================
-// VERIFY ACCESS CODE
-//==============================
+<div id="announcementBox">
 
 
-async function checkAccessCode(){
+<!-- Announcement loads here -->
 
 
+</div>
 
-const code =
 
-codeInput.value.trim();
 
+</div>
 
 
-if(!code){
+</section>
 
 
-errorMessage.innerText=
 
-"Enter access code";
 
 
-showToast(
 
-"Access code required",
 
-"warning"
 
-);
+<!--==============================
+RESOURCES SECTION
+==============================-->
 
+<section 
+class="ts-section"
+id="resources">
 
-return;
 
-}
+<div class="ts-container">
 
 
 
-try{
+<div class="ts-section-header">
 
 
-const now =
+<div class="ts-section-text">
 
-new Date()
 
-.toISOString();
+<div class="ts-section-tag">
 
+Study Material
 
+</div>
 
-const {data,error}=
 
-await window.supabaseClient
 
-.from("access_codes")
+<h2 class="ts-title">
 
-.select("*")
+Latest Resources
 
-.eq(
+</h2>
 
-"access_code",
 
-code
 
-)
+<p class="ts-subtitle">
 
-.eq(
+Find notes, chapters, and study
+materials easily.
 
-"active",
+</p>
 
-true
 
-)
 
-.limit(1);
+</div>
 
 
+</div>
 
-if(error)
 
-throw error;
 
 
 
-if(!data || data.length===0){
 
 
-errorMessage.innerText=
+<!-- FILTER BUTTONS -->
 
-"Invalid access code";
 
+<div class="ts-filters">
 
-showToast(
 
-"Access denied",
 
-"error"
+<button
 
-);
+class="ts-filter active"
 
+data-filter="all">
 
-return;
+All
 
-}
+</button>
 
 
 
+<button
 
+class="ts-filter"
 
-const access=data[0];
+data-filter="notes">
 
+Notes
 
+</button>
 
-// Check expiry
 
-if(
 
-access.expires_at &&
 
-new Date(access.expires_at)
+<button
 
-< new Date()
+class="ts-filter"
 
-){
+data-filter="pdf">
 
+PDF
 
-errorMessage.innerText=
+</button>
 
-"Access code expired";
 
 
-showToast(
 
-"Code expired",
+<button
 
-"error"
+class="ts-filter"
 
-);
+data-filter="paper">
 
+Papers
 
-return;
+</button>
 
-}
 
 
+</div>
 
 
-// Save session
 
-sessionStorage.setItem(
 
-"ts_access",
 
-code
 
-);
 
+<!-- RESOURCE GRID -->
 
 
-showToast(
+<div 
 
-"Access granted",
+class="ts-grid"
 
-"success"
+id="resourceContainer">
 
-);
 
 
+<!-- Resources load here -->
 
-closePopup();
 
 
+</div>
 
-// Open PDF
 
-window.open(
 
-selectedPDF,
+</div>
 
-"_blank"
 
-);
+</section>
+<!--==============================
+ACCESS CODE POPUP
+==============================-->
 
+<div 
+class="ts-popup"
+id="unlockPopup">
 
 
-}
+<div class="ts-popup-box">
 
-catch(error){
 
 
-console.error(
+<div class="ts-popup-icon">
 
-"Access Error:",
+🔐
 
-error
+</div>
 
-);
 
 
 
-showToast(
+<h2>
 
-"Verification failed",
+Enter Access Code
 
-"error"
+</h2>
 
-);
 
 
-}
+<p>
 
+This resource requires an
+access code to continue.
 
+</p>
 
-}
 
 
 
+<input
 
+type="text"
 
-//==============================
-// REMEMBER ACCESS SESSION
-//==============================
+id="codeInput"
 
+placeholder="Enter access code"
 
-function hasAccess(){
+autocomplete="off"
 
+>
 
-return Boolean(
 
-sessionStorage.getItem(
 
-"ts_access"
 
-)
+<div 
 
-);
+class="ts-error"
 
+id="errorMsg">
 
-}
+</div>
 
 
 
 
 
-//==============================
-// POPUP EVENTS
-//==============================
+<div class="ts-popup-actions">
 
 
-if(codeInput){
 
+<button
 
-codeInput.addEventListener(
+class="ts-confirm"
 
-"keydown",
+onclick="checkAccessCode()">
 
-(event)=>{
+Unlock
 
+</button>
 
-if(event.key==="Enter"){
 
-checkAccessCode();
 
-}
+<button
 
+class="ts-cancel"
 
-}
+onclick="closePopup()">
 
-);
+Cancel
 
+</button>
 
-}
 
 
+</div>
 
 
-// Close on outside click
 
-if(unlockPopup){
+</div>
 
 
-unlockPopup.addEventListener(
+</div>
 
-"click",
 
-(event)=>{
 
 
-if(
 
-event.target===unlockPopup
 
-){
 
+<!--==============================
+TOAST NOTIFICATION
+==============================-->
 
-closePopup();
 
+<div 
 
-}
+class="ts-toast"
 
+id="toast">
 
-}
 
-);
+<span id="toastText">
 
+</span>
 
-}
 
+</div>
 
 
 
 
-// ESC close
 
-document.addEventListener(
 
-"keydown",
 
-(event)=>{
 
+<!--==============================
+BACK TO TOP
+==============================-->
 
-if(event.key==="Escape"){
 
-closePopup();
+<button
 
-}
+class="ts-top"
 
+id="topBtn">
 
-});
+↑
+
+</button>
+
+  <!--==============================
+FOOTER
+==============================-->
+
+<footer 
+class="ts-footer"
+id="about">
+
+
+<div class="ts-container">
+
+
+<h3>
+
+The Scholars
+
+</h3>
+
+
+
+<p>
+
+A premium learning platform
+for organized education.
+
+</p>
+
+
+
+<small>
+
+© <span id="year"></span>
+The Scholars. All rights reserved.
+
+</small>
+
+
+
+</div>
+
+
+</footer>
+
+
+
+
+
+
+
+<!--==============================
+SCRIPTS
+==============================-->
+
+
+<!-- Supabase Library -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+
+<!-- Supabase Connection -->
+
+<script src="supabase.js"></script>
+
+
+
+<!-- Main Application -->
+
+<script src="app.js"></script>
+
+
+
+</body>
+
+</html>

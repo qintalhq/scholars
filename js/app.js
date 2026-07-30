@@ -1,9 +1,15 @@
-// ==========================================
-// THE SCHOLARS
-// Premium App v2.0
-// ==========================================
+/*==================================================
+THE SCHOLARS
+Premium App v3.0
 
-// ---------- Elements ----------
+app.js
+Part 1 - Core Setup
+==================================================*/
+
+
+//==============================
+// DOM ELEMENTS
+//==============================
 
 const resourceContainer =
 document.getElementById("resourceContainer");
@@ -23,52 +29,89 @@ document.getElementById("toast");
 const toastText =
 document.getElementById("toastText");
 
-const topBtn =
+const topButton =
 document.getElementById("topBtn");
 
 const navbar =
 document.getElementById("navbar");
 
-const themeBtn =
+const themeButton =
 document.getElementById("themeBtn");
 
 const mobileMenu =
 document.getElementById("mobileMenu");
 
 
-// ---------- Variables ----------
+// Access Popup
+
+const unlockPopup =
+document.getElementById("unlockPopup");
+
+const codeInput =
+document.getElementById("codeInput");
+
+const errorMessage =
+document.getElementById("errorMsg");
+
+
+
+//==============================
+// GLOBAL VARIABLES
+//==============================
 
 let allResources = [];
 
 let selectedPDF = "";
 
-let currentTheme = "dark";
+let currentTheme =
+localStorage.getItem("theme") || "dark";
 
 
-// ---------- Loading Screen ----------
 
-window.addEventListener("load",()=>{
+//==============================
+// APPLY THEME
+//==============================
 
-setTimeout(()=>{
+function applyTheme(){
 
-loadingScreen.style.opacity="0";
+if(currentTheme==="light"){
 
-loadingScreen.style.visibility="hidden";
+document.body.classList.add("light");
 
-},700);
+}
 
-});
+else{
+
+document.body.classList.remove("light");
+
+}
+
+}
 
 
-// ---------- Toast ----------
+applyTheme();
+
+
+
+//==============================
+// TOAST SYSTEM
+//==============================
 
 function showToast(message,type="success"){
 
-toastText.innerText=message;
+if(!toast || !toastText)
+return;
 
-toast.className="toast";
+
+toastText.innerText = message;
+
+
+toast.className =
+"ts-toast";
+
 
 toast.classList.add(type);
+
 
 setTimeout(()=>{
 
@@ -76,38 +119,123 @@ toast.classList.add("show");
 
 },50);
 
+
+
 setTimeout(()=>{
 
 toast.classList.remove("show");
 
 },3500);
 
+
 }
 
 
-// ---------- Theme ----------
 
-if(themeBtn){
+//==============================
+// LOADING SCREEN
+//==============================
 
-themeBtn.onclick=()=>{
+function hideLoading(){
 
-document.body.classList.toggle("light");
+if(!loadingScreen)
+return;
 
-currentTheme=
 
-document.body.classList.contains("light")
+loadingScreen.style.opacity="0";
 
-? "light"
 
-: "dark";
+setTimeout(()=>{
 
-themeBtn.innerHTML=
+loadingScreen.style.display="none";
 
-currentTheme==="dark"
+},500);
 
-? "🌙"
 
-: "☀️";
+}
+
+
+
+//==============================
+// SKELETON LOADER
+//==============================
+
+function showSkeleton(){
+
+if(!resourceContainer)
+return;
+
+
+resourceContainer.innerHTML="";
+
+
+for(let i=0;i<6;i++){
+
+
+resourceContainer.innerHTML += `
+
+<div class="ts-card">
+
+<div class="ts-skeleton ts-skeleton-title"></div>
+
+<div class="ts-skeleton ts-skeleton-text"></div>
+
+<div class="ts-skeleton ts-skeleton-text"></div>
+
+<div class="ts-skeleton ts-skeleton-btn"></div>
+
+</div>
+
+`;
+
+}
+
+
+}
+
+
+
+//==============================
+// MOBILE MENU
+//==============================
+
+function toggleMenu(){
+
+if(!mobileMenu)
+return;
+
+
+mobileMenu.classList.toggle("show");
+
+}
+
+
+
+//==============================
+// THEME BUTTON
+//==============================
+
+if(themeButton){
+
+themeButton.addEventListener(
+
+"click",
+
+()=>{
+
+
+if(currentTheme==="dark"){
+
+currentTheme="light";
+
+}
+
+else{
+
+currentTheme="dark";
+
+}
+
 
 localStorage.setItem(
 
@@ -117,192 +245,170 @@ currentTheme
 
 );
 
+
+applyTheme();
+
+
+}
+
+);
+
+}
+
+
+
+//==============================
+// NAVBAR SCROLL EFFECT
+//==============================
+
+window.addEventListener(
+
+"scroll",
+
+()=>{
+
+
+if(!navbar)
+return;
+
+
+if(window.scrollY>50){
+
+navbar.classList.add(
+"scrolled"
+);
+
+}
+
+else{
+
+navbar.classList.remove(
+"scrolled"
+);
+
+}
+
+
+if(topButton){
+
+if(window.scrollY>500){
+
+topButton.classList.add(
+"show"
+);
+
+}
+
+else{
+
+topButton.classList.remove(
+"show"
+);
+
+}
+
+}
+
+
+}
+
+);
+
+
+
+//==============================
+// BACK TO TOP
+//==============================
+
+if(topButton){
+
+topButton.onclick=()=>{
+
+
+window.scrollTo({
+
+top:0,
+
+behavior:"smooth"
+
+});
+
+
 };
 
 }
 
 
-// Restore Theme
 
-const savedTheme=
-
-localStorage.getItem("theme");
-
-if(savedTheme==="light"){
-
-document.body.classList.add("light");
-
-themeBtn.innerHTML="☀️";
-
-}
+//==============================
+// UTILITY FUNCTIONS
+//==============================
 
 
-// ---------- Mobile Menu ----------
+function escapeHTML(text){
 
-let mobileOpen=false;
+if(!text)
+return "";
 
-function toggleMenu(){
 
-mobileOpen=!mobileOpen;
+return text
 
-mobileMenu.classList.toggle(
+.replace(/&/g,"&amp;")
 
-"show",
+.replace(/</g,"&lt;")
 
-mobileOpen
+.replace(/>/g,"&gt;")
 
-);
+.replace(/"/g,"&quot;")
+
+.replace(/'/g,"&#039;");
 
 }
 
 
-// ---------- Utility ----------
 
-function countUnique(arr,key){
+function countUnique(array,key){
 
 return new Set(
 
-arr.map(item=>item[key])
+array
+
+.map(item=>item[key])
+
+.filter(Boolean)
 
 ).size;
 
-}
-
-
-// ---------- Statistics ----------
-
-function updateStats(){
-
-document.getElementById(
-
-"totalResources"
-
-).innerText=
-
-allResources.length;
-
-
-document.getElementById(
-
-"liveResources"
-
-).innerText=
-
-allResources.length;
-
-
-document.getElementById(
-
-"totalSubjects"
-
-).innerText=
-
-countUnique(
-
-allResources,
-
-"subject"
-
-);
-
-
-document.getElementById(
-
-"liveSubjects"
-
-).innerText=
-
-countUnique(
-
-allResources,
-
-"subject"
-
-);
-
-
-document.getElementById(
-
-"totalClasses"
-
-).innerText=
-
-countUnique(
-
-allResources,
-
-"class"
-
-);
-
-
-document.getElementById(
-
-"liveClasses"
-
-).innerText=
-
-countUnique(
-
-allResources,
-
-"class"
-
-);
 
 }
+/*==================================================
+PART 2
+Supabase Loading System
+==================================================*/
 
 
-// ---------- Skeleton Loader ----------
-
-function showSkeleton(){
-
-resourceContainer.innerHTML="";
-
-for(let i=0;i<6;i++){
-
-resourceContainer.innerHTML+=`
-
-<div class="resource-card">
-
-<div class="skeleton skeletonTitle"></div>
-
-<div class="skeleton skeletonText"></div>
-
-<div class="skeleton skeletonText"></div>
-
-<div class="skeleton skeletonBtn"></div>
-
-</div>
-
-`;
-
-}
-
-}
-
-showSkeleton();
-// ==========================================
-// PART 5B
-// Supabase Loading
-// ==========================================
-
-
-// ---------- Load Announcements ----------
+//==============================
+// LOAD ANNOUNCEMENTS
+//==============================
 
 async function loadAnnouncements(){
 
-try{
+if(!announcementBox)
+return;
+
 
 announcementBox.innerHTML=`
 
-<div class="announcement-card">
+<div class="ts-skeleton ts-skeleton-title"></div>
 
-<div class="spinner"></div>
-
-</div>
+<div class="ts-skeleton ts-skeleton-text"></div>
 
 `;
+
+
+
+try{
+
 
 const {data,error}=
 
@@ -312,25 +418,44 @@ await window.supabaseClient
 
 .select("*")
 
-.order("created_at",{ascending:false})
+.order(
+
+"created_at",
+
+{
+
+ascending:false
+
+}
+
+)
 
 .limit(1);
 
 
-if(error) throw error;
+
+if(error)
+
+throw error;
+
 
 
 if(!data || data.length===0){
 
+
 announcementBox.innerHTML=`
 
-<div class="announcement-card">
+<div class="ts-announcement">
 
-<h3>No Announcements</h3>
+<h3>
+
+No Announcements
+
+</h3>
 
 <p>
 
-There are currently no announcements.
+There are no announcements available currently.
 
 </p>
 
@@ -343,119 +468,57 @@ return;
 }
 
 
-const item=data[0];
+
+const announcement=data[0];
+
+
 
 announcementBox.innerHTML=`
 
-<div class="announcement-card reveal glow">
+<div class="ts-announcement ts-reveal active">
 
 <h3>
 
-📢 ${item.title}
+📢 ${escapeHTML(announcement.title)}
 
 </h3>
 
+
 <p>
 
-${item.message}
+${escapeHTML(announcement.message)}
 
 </p>
+
 
 </div>
 
 `;
 
-}catch(err){
 
-console.error(err);
+
+}
+
+catch(error){
+
+
+console.error(
+
+"Announcement Error:",
+
+error
+
+);
+
+
 
 announcementBox.innerHTML=`
 
-<div class="announcement-card">
+<div class="ts-announcement">
 
 <h3>
 
 Unable to load announcement
-
-</h3>
-
-</div>
-
-`;
-
-showToast(
-
-"Announcement loading failed",
-
-"error"
-
-);
-
-}
-
-}
-
-
-
-// ---------- Load Resources ----------
-
-async function loadResources(){
-
-showSkeleton();
-
-try{
-
-const {data,error}=
-
-await window.supabaseClient
-
-.from("resources")
-
-.select("*")
-
-.order("uploaded_date",{
-
-ascending:false
-
-});
-
-
-if(error) throw error;
-
-
-allResources=data || [];
-
-
-updateStats();
-
-
-displayResources(
-
-allResources
-
-);
-
-
-showToast(
-
-"Resources Loaded",
-
-"success"
-
-);
-
-
-}catch(err){
-
-console.error(err);
-
-resourceContainer.innerHTML=`
-
-<div class="resource-card">
-
-<h3>
-
-Failed to load resources
 
 </h3>
 
@@ -469,6 +532,125 @@ Please try again later.
 
 `;
 
+
+showToast(
+
+"Announcement loading failed",
+
+"error"
+
+);
+
+
+}
+
+
+
+}
+
+
+
+
+
+//==============================
+// LOAD RESOURCES
+//==============================
+
+
+async function loadResources(){
+
+
+if(!resourceContainer)
+
+return;
+
+
+
+showSkeleton();
+
+
+
+try{
+
+
+const {data,error}=
+
+await window.supabaseClient
+
+.from("resources")
+
+.select("*")
+
+.order(
+
+"uploaded_date",
+
+{
+
+ascending:false
+
+}
+
+);
+
+
+
+if(error)
+
+throw error;
+
+
+
+allResources=data || [];
+
+
+
+updateStatistics();
+
+
+
+displayResources(allResources);
+
+
+
+}
+
+catch(error){
+
+
+console.error(
+
+"Resource Error:",
+
+error
+
+);
+
+
+
+resourceContainer.innerHTML=`
+
+<div class="ts-empty">
+
+<h3>
+
+Failed to load resources
+
+</h3>
+
+
+<p>
+
+Check your internet connection and try again.
+
+</p>
+
+</div>
+
+`;
+
+
+
 showToast(
 
 "Resource loading failed",
@@ -477,43 +659,139 @@ showToast(
 
 );
 
+
+
 }
 
+
+
 }
 
 
 
-// ---------- Refresh Button ----------
 
-async function refreshResources(){
+
+//==============================
+// STATISTICS
+//==============================
+
+
+function updateStatistics(){
+
+
+const totalResources=
+
+document.getElementById(
+
+"totalResources"
+
+);
+
+
+const totalSubjects=
+
+document.getElementById(
+
+"totalSubjects"
+
+);
+
+
+const totalClasses=
+
+document.getElementById(
+
+"totalClasses"
+
+);
+
+
+
+if(totalResources)
+
+totalResources.innerText=
+
+allResources.length;
+
+
+
+if(totalSubjects)
+
+totalSubjects.innerText=
+
+countUnique(
+
+allResources,
+
+"subject"
+
+);
+
+
+
+if(totalClasses)
+
+totalClasses.innerText=
+
+countUnique(
+
+allResources,
+
+"class"
+
+);
+
+
+
+}
+
+
+
+
+
+//==============================
+// REFRESH SYSTEM
+//==============================
+
+
+async function refreshData(){
+
 
 showToast(
 
-"Refreshing...",
+"Refreshing data...",
 
 "warning"
 
 );
 
+
+
 await loadAnnouncements();
 
 await loadResources();
+
+
+
+showToast(
+
+"Updated successfully",
+
+"success"
+
+);
+
 
 }
 
 
 
-// ---------- Auto Refresh ----------
-
-setInterval(()=>{
-
-loadAnnouncements();
-
-},60000);
 
 
+//==============================
+// CONNECTION STATUS
+//==============================
 
-// ---------- Connection Check ----------
 
 window.addEventListener(
 
@@ -521,17 +799,20 @@ window.addEventListener(
 
 ()=>{
 
+
 showToast(
 
-"You are offline",
+"No internet connection",
 
 "error"
 
 );
 
+
 }
 
 );
+
 
 
 window.addEventListener(
@@ -540,58 +821,73 @@ window.addEventListener(
 
 ()=>{
 
+
 showToast(
 
-"Back online",
+"Connection restored",
 
 "success"
 
 );
 
-refreshResources();
 
-}
-
-);
+refreshData();
 
 
+});
 
-// ---------- Loading Complete ----------
 
-async function loadAll(){
 
-await loadAnnouncements();
 
-await loadResources();
 
-}
+//==============================
+// AUTO UPDATE ANNOUNCEMENTS
+//==============================
 
-// ==========================================
-// PART 5C
-// Display Resources & Filters
-// ==========================================
 
-// ---------- Display Resources ----------
+setInterval(()=>{
+
+
+loadAnnouncements();
+
+
+},60000);
+
+/*==================================================
+PART 3
+Resource Cards • Search • Filters
+==================================================*/
+
+
+//==============================
+// DISPLAY RESOURCES
+//==============================
 
 function displayResources(resources){
 
-resourceContainer.innerHTML="";
+
+if(!resourceContainer)
+
+return;
+
+
 
 if(resources.length===0){
 
+
 resourceContainer.innerHTML=`
 
-<div class="resource-card">
+<div class="ts-empty">
 
-<h2>
+<h3>
 
-😕 No Resources Found
+No Resources Found
 
-</h2>
+</h3>
 
 <p>
 
-Try another search or filter.
+Try searching something else.
 
 </p>
 
@@ -603,73 +899,132 @@ return;
 
 }
 
+
+
+resourceContainer.innerHTML="";
+
+
+
 resources.forEach((resource,index)=>{
+
+
 
 const card=document.createElement("div");
 
-card.className="resource-card reveal glow";
 
-card.style.animationDelay=`${index*0.08}s`;
+card.className=
 
-const badge=
+"ts-card ts-reveal";
 
-index<3
 
-? `<div class="featuredBadge">🔥 NEW</div>`
 
-: "";
+card.style.animationDelay=
+
+`${index*0.08}s`;
+
+
+
+const isNew=index<3;
+
+
 
 card.innerHTML=`
 
-${badge}
+${isNew ? `
 
-<div class="resource-content">
+<div class="ts-badge-new">
 
-<h3>
-
-${resource.title}
-
-</h3>
-
-<p>
-
-${resource.description ||
-
-"No description available."}
-
-</p>
-
-<div class="resource-meta">
-
-<span>
-
-📚 ${resource.subject || "Subject"}
-
-</span>
-
-<span>
-
-📖 ${resource.chapter || "Chapter"}
-
-</span>
-
-<span>
-
-🎓 Class ${resource.class || "-"}
-
-</span>
-
-<span>
-
-📄 ${resource.resource_type || "Notes"}
-
-</span>
+NEW
 
 </div>
 
+`:""}
+
+
+
+<h3 class="ts-card-title">
+
+${escapeHTML(resource.title)}
+
+</h3>
+
+
+
+<p class="ts-card-desc">
+
+${escapeHTML(
+
+resource.description ||
+
+"No description available."
+
+)}
+
+</p>
+
+
+
+<div class="ts-meta">
+
+
+<span>
+
+📚 ${escapeHTML(
+
+resource.subject || "Subject"
+
+)}
+
+</span>
+
+
+
+<span>
+
+📖 ${escapeHTML(
+
+resource.chapter || "Chapter"
+
+)}
+
+</span>
+
+
+
+<span>
+
+🎓 Class ${escapeHTML(
+
+resource.class || "-"
+
+)}
+
+</span>
+
+
+
+<span>
+
+📄 ${escapeHTML(
+
+resource.resource_type || "Notes"
+
+)}
+
+</span>
+
+
+
+</div>
+
+
+
+<div class="ts-card-footer">
+
+
 <button
 
-class="open-btn"
+class="ts-btn-open"
 
 onclick="openProtectedResource('${resource.pdf_url}')">
 
@@ -677,168 +1032,185 @@ Open Resource
 
 </button>
 
+
+
 </div>
 
 `;
 
+
+
 resourceContainer.appendChild(card);
+
+
 
 });
 
-observeReveal();
+
+
+activateReveal();
+
 
 }
 
 
 
-// ---------- Subject Filters ----------
 
-const filterButtons=
 
-document.querySelectorAll(".filter");
+//==============================
+// SEARCH SYSTEM
+//==============================
 
-filterButtons.forEach(button=>{
 
-button.addEventListener("click",()=>{
+if(searchInput){
 
-filterButtons.forEach(btn=>
 
-btn.classList.remove("active")
+searchInput.addEventListener(
 
-);
+"input",
 
-button.classList.add("active");
+()=>{
 
-const filter=
 
-button.innerText.toLowerCase();
+const keyword=
 
-if(filter==="all"){
+searchInput.value
+
+.toLowerCase()
+
+.trim();
+
+
+
+if(keyword===""){
+
 
 displayResources(allResources);
 
 return;
 
 }
+
+
 
 const filtered=
 
 allResources.filter(resource=>{
 
-const type=
+
+return(
+
+(resource.title||"")
+
+.toLowerCase()
+
+.includes(keyword)
+
+
+||
+
+(resource.description||"")
+
+.toLowerCase()
+
+.includes(keyword)
+
+
+
+||
+
+(resource.subject||"")
+
+.toLowerCase()
+
+.includes(keyword)
+
+
+
+||
+
+(resource.chapter||"")
+
+.toLowerCase()
+
+.includes(keyword)
+
+
+
+||
 
 (resource.resource_type||"")
 
-.toLowerCase();
+.toLowerCase()
 
-return type.includes(filter);
+.includes(keyword)
+
+);
+
 
 });
+
+
 
 displayResources(filtered);
 
-});
 
-});
-
-
-
-// ---------- Reveal Animation ----------
-
-function observeReveal(){
-
-const cards=
-
-document.querySelectorAll(".reveal");
-
-const observer=
-
-new IntersectionObserver(entries=>{
-
-entries.forEach(entry=>{
-
-if(entry.isIntersecting){
-
-entry.target.classList.add("active");
 
 }
-
-});
-
-},{
-
-threshold:.15
-
-});
-
-cards.forEach(card=>{
-
-observer.observe(card);
-
-});
-
-}
-
-
-
-// ---------- Featured Badge ----------
-
-document.head.insertAdjacentHTML(
-
-"beforeend",
-
-`
-
-<style>
-
-.featuredBadge{
-
-position:absolute;
-
-top:18px;
-
-right:18px;
-
-padding:6px 12px;
-
-border-radius:30px;
-
-font-size:12px;
-
-font-weight:700;
-
-background:linear-gradient(135deg,#ff2d2d,#ff8080);
-
-color:white;
-
-box-shadow:0 8px 20px rgba(255,45,45,.35);
-
-z-index:2;
-
-}
-
-</style>
-
-`
 
 );
-// ==========================================
-// PART 5D
-// Search • Scroll • Particles • UI Effects
-// ==========================================
 
 
-// ---------- Live Search ----------
+}
 
-if(searchInput){
 
-searchInput.addEventListener("input",()=>{
 
-const keyword=searchInput.value
-.toLowerCase()
-.trim();
 
-if(keyword===""){
+//==============================
+// FILTER SYSTEM
+//==============================
+
+
+const filterButtons=
+
+document.querySelectorAll(
+
+".ts-filter"
+
+);
+
+
+
+filterButtons.forEach(button=>{
+
+
+button.addEventListener(
+
+"click",
+
+()=>{
+
+
+filterButtons.forEach(btn=>{
+
+btn.classList.remove("active");
+
+});
+
+
+
+button.classList.add("active");
+
+
+
+const filter=
+
+button.dataset.filter;
+
+
+
+if(!filter || filter==="all"){
+
 
 displayResources(allResources);
 
@@ -846,356 +1218,252 @@ return;
 
 }
 
-const filtered=allResources.filter(resource=>{
+
+
+const filtered=
+
+allResources.filter(resource=>{
+
 
 return(
 
-(resource.title||"")
+resource.resource_type &&
+
+resource.resource_type
+
 .toLowerCase()
-.includes(keyword)
 
-||
-
-(resource.description||"")
-.toLowerCase()
-.includes(keyword)
-
-||
-
-(resource.subject||"")
-.toLowerCase()
-.includes(keyword)
-
-||
-
-(resource.chapter||"")
-.toLowerCase()
-.includes(keyword)
-
-||
-
-(resource.resource_type||"")
-.toLowerCase()
-.includes(keyword)
+===filter.toLowerCase()
 
 );
 
+
 });
+
+
 
 displayResources(filtered);
 
-});
+
 
 }
-
-
-
-// ---------- Back To Top ----------
-
-window.addEventListener("scroll",()=>{
-
-if(window.scrollY>500){
-
-topBtn.classList.add("show");
-
-navbar.classList.add("scrolled");
-
-}else{
-
-topBtn.classList.remove("show");
-
-navbar.classList.remove("scrolled");
-
-}
-
-});
-
-if(topBtn){
-
-topBtn.onclick=()=>{
-
-window.scrollTo({
-
-top:0,
-
-behavior:"smooth"
-
-});
-
-};
-
-}
-
-
-
-// ---------- Smooth Navigation ----------
-
-document.querySelectorAll('a[href^="#"]').forEach(link=>{
-
-link.addEventListener("click",function(e){
-
-const target=document.querySelector(
-
-this.getAttribute("href")
 
 );
 
-if(target){
-
-e.preventDefault();
-
-target.scrollIntoView({
-
-behavior:"smooth"
-
-});
-
-}
-
-});
 
 });
 
 
 
 
-// ---------- Floating Particles ----------
-
-const particleContainer=
-
-document.getElementById("particles");
-
-if(particleContainer){
-
-for(let i=0;i<25;i++){
-
-const particle=
-
-document.createElement("div");
-
-particle.className="particle";
-
-particle.style.left=
-
-Math.random()*100+"%";
-
-particle.style.animationDuration=
-
-(8+Math.random()*8)+"s";
-
-particle.style.animationDelay=
-
-Math.random()*6+"s";
-
-particle.style.opacity=
-
-Math.random();
-
-particleContainer.appendChild(particle);
-
-}
-
-}
+//==============================
+// SCROLL REVEAL
+//==============================
 
 
-
-// ---------- Ripple Effect ----------
-
-document.addEventListener("click",e=>{
-
-const btn=e.target.closest("button,.open-btn");
-
-if(!btn)return;
-
-const ripple=
-
-document.createElement("span");
-
-ripple.className="ripple";
-
-const rect=btn.getBoundingClientRect();
-
-const size=Math.max(rect.width,rect.height);
-
-ripple.style.width=size+"px";
-
-ripple.style.height=size+"px";
-
-ripple.style.left=
-
-(e.clientX-rect.left-size/2)+"px";
-
-ripple.style.top=
-
-(e.clientY-rect.top-size/2)+"px";
-
-btn.appendChild(ripple);
-
-setTimeout(()=>{
-
-ripple.remove();
-
-},600);
-
-});
+function activateReveal(){
 
 
+const elements=
 
+document.querySelectorAll(
 
-// ---------- Keyboard Shortcut ----------
-
-document.addEventListener("keydown",e=>{
-
-if(e.key==="/"){
-
-e.preventDefault();
-
-searchInput.focus();
-
-}
-
-});
-
-
-
-
-// ---------- Welcome ----------
-
-setTimeout(()=>{
-
-showToast(
-
-"Welcome to The Scholars 🎓",
-
-"success"
+".ts-reveal"
 
 );
 
-},1200);
 
 
+const observer=
+
+new IntersectionObserver(
+
+(entries)=>{
 
 
-// ---------- Resource Counter Animation ----------
+entries.forEach(entry=>{
 
-function animateNumber(id,target){
 
-const element=
+if(entry.isIntersecting){
 
-document.getElementById(id);
 
-if(!element)return;
+entry.target.classList.add(
 
-let value=0;
-
-const step=
-
-Math.max(1,
-
-Math.ceil(target/40)
+"active"
 
 );
 
-const timer=
 
-setInterval(()=>{
+observer.unobserve(
 
-value+=step;
+entry.target
 
-if(value>=target){
+);
 
-value=target;
-
-clearInterval(timer);
-
-}
-
-element.innerText=value;
-
-},25);
-
-}
-// ==========================================
-// PART 5E
-// Premium Access Code System
-// ==========================================
-
-
-// ---------- Elements ----------
-
-const unlockPopup =
-document.getElementById("unlockPopup");
-
-const codeInput =
-document.getElementById("codeInput");
-
-const errorMsg =
-document.getElementById("errorMsg");
-
-
-// ---------- Open Protected Resource ----------
-
-function openProtectedResource(pdf){
-
-selectedPDF = pdf;
-
-codeInput.value = "";
-
-errorMsg.textContent = "";
-
-unlockPopup.style.display = "flex";
-
-setTimeout(()=>{
-
-codeInput.focus();
-
-},250);
 
 }
 
 
+});
 
-// ---------- Close Popup ----------
 
-function closePopup(){
+},
 
-unlockPopup.style.display = "none";
+{
 
-errorMsg.textContent = "";
-
-codeInput.value = "";
+threshold:.15
 
 }
 
+);
 
 
-// ---------- Verify Access Code ----------
 
-async function checkAccessCode(){
+elements.forEach(element=>{
 
-const code =
-codeInput.value.trim();
 
-if(code===""){
+observer.observe(element);
 
-errorMsg.textContent =
-"Please enter your access code.";
 
-showToast(
-"Access code required",
-"warning"
+});
+
+
+}
+/*==================================================
+PART 4
+Access Code Protection System
+==================================================*/
+
+
+//==============================
+// OPEN PROTECTED RESOURCE
+//==============================
+
+function openProtectedResource(pdfUrl){
+
+
+if(!unlockPopup){
+
+console.error(
+"Access popup not found"
 );
 
 return;
 
 }
 
+
+selectedPDF = pdfUrl;
+
+
+if(codeInput){
+
+codeInput.value="";
+
+}
+
+
+if(errorMessage){
+
+errorMessage.innerText="";
+
+}
+
+
+unlockPopup.classList.add("active");
+
+
+}
+
+
+
+//==============================
+// CLOSE POPUP
+//==============================
+
+function closePopup(){
+
+
+if(!unlockPopup)
+
+return;
+
+
+
+unlockPopup.classList.remove("active");
+
+
+
+if(codeInput){
+
+codeInput.value="";
+
+}
+
+
+
+if(errorMessage){
+
+errorMessage.innerText="";
+
+}
+
+
+}
+
+
+
+
+//==============================
+// VERIFY ACCESS CODE
+//==============================
+
+
+async function checkAccessCode(){
+
+
+
+const code =
+
+codeInput.value.trim();
+
+
+
+if(!code){
+
+
+errorMessage.innerText=
+
+"Enter access code";
+
+
+showToast(
+
+"Access code required",
+
+"warning"
+
+);
+
+
+return;
+
+}
+
+
+
 try{
 
-const now =
-new Date().toISOString();
 
-const {data,error} =
+const now =
+
+new Date()
+
+.toISOString();
+
+
+
+const {data,error}=
 
 await window.supabaseClient
 
@@ -1203,58 +1471,122 @@ await window.supabaseClient
 
 .select("*")
 
-.eq("access_code",code)
+.eq(
 
-.eq("active",true)
+"access_code",
 
-.or(`expires_at.is.null,expires_at.gt.${now}`)
+code
+
+)
+
+.eq(
+
+"active",
+
+true
+
+)
 
 .limit(1);
 
-if(error) throw error;
+
+
+if(error)
+
+throw error;
+
+
 
 if(!data || data.length===0){
 
-errorMsg.textContent =
-"Invalid or expired access code.";
 
-codeInput.classList.add("shake");
+errorMessage.innerText=
 
-setTimeout(()=>{
+"Invalid access code";
 
-codeInput.classList.remove("shake");
-
-},500);
 
 showToast(
+
 "Access denied",
+
 "error"
+
 );
+
 
 return;
 
 }
 
 
-// Save for this browser session
+
+
+
+const access=data[0];
+
+
+
+// Check expiry
+
+if(
+
+access.expires_at &&
+
+new Date(access.expires_at)
+
+< new Date()
+
+){
+
+
+errorMessage.innerText=
+
+"Access code expired";
+
+
+showToast(
+
+"Code expired",
+
+"error"
+
+);
+
+
+return;
+
+}
+
+
+
+
+// Save session
 
 sessionStorage.setItem(
 
-"scholars_access_code",
+"ts_access",
 
 code
 
 );
 
+
+
 showToast(
 
-"Access Granted 🎉",
+"Access granted",
 
 "success"
 
 );
 
+
+
 closePopup();
+
+
+
+// Open PDF
 
 window.open(
 
@@ -1264,12 +1596,22 @@ selectedPDF,
 
 );
 
-}catch(err){
 
-console.error(err);
 
-errorMsg.textContent =
-"Unable to verify access code.";
+}
+
+catch(error){
+
+
+console.error(
+
+"Access Error:",
+
+error
+
+);
+
+
 
 showToast(
 
@@ -1279,512 +1621,124 @@ showToast(
 
 );
 
-}
 
 }
 
 
 
-// ---------- Auto Unlock ----------
+}
 
-const savedCode =
+
+
+
+
+//==============================
+// REMEMBER ACCESS SESSION
+//==============================
+
+
+function hasAccess(){
+
+
+return Boolean(
 
 sessionStorage.getItem(
 
-"scholars_access_code"
+"ts_access"
+
+)
 
 );
 
-if(savedCode){
-
-async function verifySavedCode(){
-
-try{
-
-const now =
-new Date().toISOString();
-
-const {data} =
-
-await window.supabaseClient
-
-.from("access_codes")
-
-.select("*")
-
-.eq("access_code",savedCode)
-
-.eq("active",true)
-
-.or(`expires_at.is.null,expires_at.gt.${now}`)
-
-.limit(1);
-
-if(data && data.length){
-
-window.open(
-
-selectedPDF,
-
-"_blank"
-
-);
-
-}else{
-
-sessionStorage.removeItem(
-
-"scholars_access_code"
-
-);
-
-}
-
-}catch(e){
-
-console.log(e);
-
-}
-
-}
 
 }
 
 
 
-// ---------- Enter Key ----------
+
+
+//==============================
+// POPUP EVENTS
+//==============================
+
 
 if(codeInput){
+
 
 codeInput.addEventListener(
 
 "keydown",
 
-e=>{
+(event)=>{
 
-if(e.key==="Enter"){
+
+if(event.key==="Enter"){
 
 checkAccessCode();
 
 }
 
-}
-
-);
-
-}
-
-
-
-// ---------- ESC ----------
-
-document.addEventListener(
-
-"keydown",
-
-e=>{
-
-if(e.key==="Escape"){
-
-closePopup();
-
-}
 
 }
 
 );
 
 
+}
 
-// ---------- Click Outside ----------
 
-window.addEventListener(
+
+
+// Close on outside click
+
+if(unlockPopup){
+
+
+unlockPopup.addEventListener(
 
 "click",
 
-e=>{
+(event)=>{
 
-if(e.target===unlockPopup){
-
-closePopup();
-
-}
-
-}
-
-);
-
-
-
-// ---------- Shake Animation ----------
-
-document.head.insertAdjacentHTML(
-
-"beforeend",
-
-`
-
-<style>
-
-.shake{
-
-animation:shake .45s;
-
-}
-
-@keyframes shake{
-
-0%,100%{
-
-transform:translateX(0);
-
-}
-
-20%{
-
-transform:translateX(-8px);
-
-}
-
-40%{
-
-transform:translateX(8px);
-
-}
-
-60%{
-
-transform:translateX(-8px);
-
-}
-
-80%{
-
-transform:translateX(8px);
-
-}
-
-}
-
-</style>
-
-`
-
-);
-
-// ==========================================
-// PART 5F
-// Final Initialization & Optimization
-// ==========================================
-
-
-// ---------- Initialize ----------
-
-async function init(){
-
-try{
-
-showSkeleton();
-
-await loadAnnouncements();
-
-await loadResources();
-
-animateNumber(
-"totalResources",
-allResources.length
-);
-
-animateNumber(
-"liveResources",
-allResources.length
-);
-
-animateNumber(
-"totalSubjects",
-countUnique(allResources,"subject")
-);
-
-animateNumber(
-"liveSubjects",
-countUnique(allResources,"subject")
-);
-
-animateNumber(
-"totalClasses",
-countUnique(allResources,"class")
-);
-
-animateNumber(
-"liveClasses",
-countUnique(allResources,"class")
-);
-
-observeReveal();
-
-showToast(
-"Welcome to The Scholars 🎓",
-"success"
-);
-
-}catch(err){
-
-console.error(err);
-
-showToast(
-"Initialization Failed",
-"error"
-);
-
-}
-
-}
-
-init();
-
-
-
-// ---------- Lazy Loading ----------
-
-const lazyObserver=
-
-new IntersectionObserver(entries=>{
-
-entries.forEach(entry=>{
-
-if(entry.isIntersecting){
-
-entry.target.classList.add("loaded");
-
-lazyObserver.unobserve(entry.target);
-
-}
-
-});
-
-},{
-threshold:0.1
-});
-
-document.querySelectorAll(
-
-".resource-card"
-
-).forEach(card=>{
-
-lazyObserver.observe(card);
-
-});
-
-
-
-
-// ---------- Mobile Menu ----------
-
-document.querySelectorAll(
-
-"#mobileMenu a"
-
-).forEach(link=>{
-
-link.onclick=()=>{
-
-mobileMenu.classList.remove("show");
-
-mobileOpen=false;
-
-};
-
-});
-
-
-
-
-// ---------- Hide Loading Screen ----------
-
-window.addEventListener(
-
-"load",
-
-()=>{
-
-setTimeout(()=>{
-
-loadingScreen.style.opacity="0";
-
-loadingScreen.style.pointerEvents="none";
-
-setTimeout(()=>{
-
-loadingScreen.remove();
-
-},500);
-
-},500);
-
-});
-
-
-
-
-// ---------- Footer Year ----------
-
-const yearSpan=
-
-document.getElementById("year");
-
-if(yearSpan){
-
-yearSpan.innerText=
-
-new Date().getFullYear();
-
-}
-
-
-
-
-// ---------- Performance ----------
-
-window.addEventListener(
-
-"pageshow",
-
-()=>{
-
-console.log(
-
-"The Scholars Ready"
-
-);
-
-});
-
-
-
-
-// ---------- Prevent Double Click ----------
-
-document.addEventListener(
-
-"dblclick",
-
-e=>{
 
 if(
 
-e.target.classList.contains(
-
-"open-btn"
-
-)
+event.target===unlockPopup
 
 ){
 
-e.preventDefault();
+
+closePopup();
+
 
 }
 
-});
 
-
-
-
-// ---------- Easter Egg ----------
-
-let scholarClicks=0;
-
-const logo=
-
-document.querySelector(".logo");
-
-if(logo){
-
-logo.onclick=()=>{
-
-scholarClicks++;
-
-if(scholarClicks===10){
-
-showToast(
-
-"🎉 Hidden Mode Activated!",
-
-"success"
+}
 
 );
 
-document.body.classList.toggle(
-
-"party-mode"
-
-);
-
-scholarClicks=0;
-
-}
-
-};
 
 }
 
 
 
 
-// ---------- Keyboard Shortcuts ----------
+
+// ESC close
 
 document.addEventListener(
 
 "keydown",
 
-e=>{
+(event)=>{
 
-if(e.ctrlKey && e.key==="k"){
 
-e.preventDefault();
-
-searchInput.focus();
-
-}
-
-if(e.key==="Escape"){
+if(event.key==="Escape"){
 
 closePopup();
 
 }
 
+
 });
-
-
-
-
-// ---------- Console Branding ----------
-
-console.log(
-
-"%cThe Scholars",
-
-"font-size:28px;color:#ff2d2d;font-weight:bold;"
-
-);
-
-console.log(
-
-"%cPremium Learning Platform",
-
-"font-size:14px;color:white;"
-
-);
-
-
-
-
-// ---------- Finish ----------
-
-showToast(
-
-"System Ready ✅",
-
-"success"
-
-);

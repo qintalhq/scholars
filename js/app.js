@@ -29,20 +29,7 @@ async function checkAccessCode() {
 
     const now = new Date().toISOString();
 
-const { data, error } =
-    await window.supabaseClient
-    .from("access_codes")
-    .select("id")
-    .eq("access_code", enteredCode)
-    .eq("active", true)
-    .or(`expires_at.is.null,expires_at.gt.${now}`)
-    .maybeSingle();
 
-    if (error) {
-        console.error(error);
-        alert("Unable to verify access code.");
-        return;
-    }
 
     if (!data) {
         document.getElementById("errorMsg").textContent =

@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 
 <title>The Scholars</title>
 
@@ -14,735 +15,3428 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
-<style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Poppins',sans-serif;
-scroll-behavior:smooth;
-}
-     .resource-card{
-background:#111;
-border:1px solid #222;
-border-radius:22px;
-padding:28px;
-transition:.35s;
-display:flex;
-flex-direction:column;
-gap:18px;
-animation:fadeUp .6s ease forwards;
-opacity:0;
-transform:translateY(40px);
-}
-
-.resource-card:hover{
-transform:translateY(-8px);
-border-color:#ff2d2d;
-box-shadow:0 0 30px rgba(255,45,45,.25);
-}
-
-.resource-content h3{
-font-size:24px;
-margin-bottom:10px;
-color:#fff;
-
-     .popup{
-position:fixed;
-inset:0;
-background:rgba(0,0,0,.7);
-display:flex;
-justify-content:center;
-align-items:center;
-z-index:9999;
-}
-
-.popup-box{
-background:#111;
-padding:30px;
-border-radius:20px;
-width:350px;
-text-align:center;
-border:1px solid #333;
-}
-
-.popup-box input{
-width:100%;
-padding:12px;
-margin:15px 0;
-border-radius:10px;
-border:1px solid #444;
-background:#1a1a1a;
-color:#fff;
-}
-
-.popup-box button{
-margin:8px;
-padding:12px 18px;
-border:none;
-border-radius:10px;
-cursor:pointer;
-background:#ff2d2d;
-color:#fff;
-}
-
-.error{
-color:#ff5555;
-margin-top:10px;
-}
-}
-
-.resource-content p{
-color:#bdbdbd;
-line-height:1.7;
-margin-bottom:18px;
-}
-
-.resource-meta{
-display:flex;
-flex-wrap:wrap;
-gap:10px;
-margin-bottom:20px;
-}
-
-.resource-meta span{
-background:#191919;
-border:1px solid #333;
-padding:7px 14px;
-border-radius:30px;
-font-size:13px;
-color:#ddd;
-}
-
-.open-btn{
-display:block;
-width:100%;
-text-align:center;
-padding:15px;
-background:#ff2d2d;
-color:white;
-text-decoration:none;
-border-radius:40px;
-font-weight:700;
-transition:.3s;
-}
-
-.open-btn:hover{
-transform:translateY(-3px);
-box-shadow:0 0 20px rgba(255,45,45,.45);
-}
-
-@keyframes fadeUp{
-to{
-opacity:1;
-transform:none;
-}
-}
-
-body{
-background:#080808;
-color:#fff;
-overflow-x:hidden;
-}
-
-body::before{
-content:'';
-position:fixed;
-top:-50%;
-left:-50%;
-width:200%;
-height:200%;
-background:
-radial-gradient(circle,#ff000020 0%,transparent 25%),
-radial-gradient(circle,#ff3b3b20 0%,transparent 30%),
-radial-gradient(circle,#ffffff08 0%,transparent 20%);
-animation:bgMove 18s linear infinite;
-z-index:-1;
-}
-
-@keyframes bgMove{
-0%{
-transform:rotate(0deg);
-}
-100%{
-transform:rotate(360deg);
-}
-}
-
-nav{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-padding:18px 8%;
-display:flex;
-justify-content:space-between;
-align-items:center;
-background:rgba(10,10,10,.75);
-backdrop-filter:blur(15px);
-border-bottom:1px solid rgba(255,255,255,.08);
-z-index:999;
-}
-
-.logo{
-font-size:28px;
-font-weight:800;
-}
-
-.logo span{
-color:#ff2d2d;
-}
-
-.menu{
-display:flex;
-gap:35px;
-}
-
-.menu a{
-color:#ddd;
-text-decoration:none;
-transition:.3s;
-}
-
-.menu a:hover{
-color:#ff2d2d;
-}
-
-.hero{
-min-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
-padding:120px 20px 80px;
-text-align:center;
-}
-
-.hero-box{
-max-width:900px;
-padding:55px;
-border-radius:28px;
-background:rgba(255,255,255,.04);
-backdrop-filter:blur(18px);
-border:1px solid rgba(255,255,255,.08);
-box-shadow:0 0 50px rgba(255,0,0,.15);
-}
-
-.hero h1{
-font-size:60px;
-font-weight:800;
-}
-
-.hero h1 span{
-color:#ff2d2d;
-}
-
-.hero p{
-margin-top:18px;
-color:#cfcfcf;
-line-height:1.8;
-font-size:18px;
-}
-
-.searchBox{
-margin-top:35px;
-display:flex;
-justify-content:center;
-}
-
-.searchBox input{
-width:100%;
-max-width:650px;
-padding:18px 25px;
-background:#111;
-border:2px solid #222;
-border-radius:50px;
-color:white;
-font-size:17px;
-outline:none;
-transition:.3s;
-}
-
-.searchBox input:focus{
-border-color:#ff2d2d;
-box-shadow:0 0 20px rgba(255,0,0,.3);
-}
-
-.buttons{
-margin-top:35px;
-display:flex;
-justify-content:center;
-gap:20px;
-flex-wrap:wrap;
-}
-
-.btn{
-padding:15px 32px;
-border-radius:50px;
-text-decoration:none;
-font-weight:700;
-transition:.3s;
-}
-
-.red{
-background:#ff2d2d;
-color:white;
-}
-
-.dark{
-background:#151515;
-border:1px solid #333;
-color:white;
-}
-
-.btn:hover{
-transform:translateY(-4px);
-}
-
-.section{
-width:90%;
-max-width:1300px;
-margin:80px auto;
-}
-
-.title{
-font-size:38px;
-margin-bottom:35px;
-}
-
-.title span{
-color:#ff2d2d;
-}
-
-.grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
-gap:25px;
-}
-
-.card{
-background:#111;
-border:1px solid #222;
-border-radius:22px;
-padding:30px;
-transition:.3s;
-}
-
-.card:hover{
-transform:translateY(-8px);
-border-color:#ff2d2d;
-box-shadow:0 0 25px rgba(255,0,0,.2);
-}
-
-.loading{
-text-align:center;
-padding:40px;
-font-size:18px;
-color:#aaa;
-}
-
-@media(max-width:768px){
-
-.hero h1{
-font-size:42px;
-}
-
-.menu{
-display:none;
-}
-
-.hero-box{
-padding:35px 25px;
-}
-
-}
-
-</style>
+<link rel="stylesheet" href="css/style.css">
 
 </head>
 
 <body>
 
-<nav>
+<!-- Animated Background -->
+
+<div class="bg1"></div>
+<div class="bg2"></div>
+<div class="bg3"></div>
+
+<!-- Navigation -->
+
+<nav id="navbar">
 
 <div class="logo">
-The <span>Scholars</span>
+
+<div class="logoIcon">
+🎓
 </div>
 
-<div class="menu">
-<a href="#">Home</a>
-<a href="#announcements">Announcements</a>
-<a href="#resources">Resources</a>
+<div>
+
+<h2>The Scholars</h2>
+
+<span>
+Learn Beyond Limits
+</span>
+
+</div>
+
+</div>
+
+<ul class="navLinks">
+
+<li>
+<a href="#home">Home</a>
+</li>
+
+<li>
+<a href="#resources">
+Resources
+</a>
+</li>
+
+<li>
+<a href="#announcements">
+Announcements
+</a>
+</li>
+
+<li>
+<a href="#features">
+Features
+</a>
+</li>
+
+</ul>
+
+<div class="navButtons">
+
+<button id="themeBtn">
+
+🌙
+
+</button>
+
+<a href="#resources" class="navExplore">
+
+Explore
+
+</a>
+
 </div>
 
 </nav>
 
-<section class="hero">
+<!-- Hero -->
 
-<div class="hero-box">
+<section
+class="hero"
+id="home">
+
+<div class="heroGlow"></div>
+
+<div class="heroContent">
+
+<div class="heroBadge">
+
+✨ Premium Learning Platform
+
+</div>
 
 <h1>
-Learn Smarter with
-<span>The Scholars</span>
+
+Master Your Exams
+
+<span>
+
+With
+The Scholars
+
+</span>
+
 </h1>
 
 <p>
-Quality Notes, PYQs, Question Banks and Study Resources —
-powered by The Scholars.
+
+One destination for
+Notes,
+Question Banks,
+PYQs,
+Sample Papers,
+Revision Material
+and Smart Learning.
+
 </p>
 
-<div class="searchBox">
+<div class="heroSearch">
 
 <input
+
 id="searchInput"
+
 type="text"
-placeholder="Search notes, chapters or subjects..."
+
+placeholder="Search notes, chapters, subjects..."
+
 >
 
-</div>
+<button id="heroSearchBtn">
 
-<div class="buttons">
+Search
 
-<a href="#resources" class="btn red">
-Explore Notes
-</a>
-
-<a href="#announcements" class="btn dark">
-Latest Updates
-</a>
+</button>
 
 </div>
 
-</div>
-
-</section>
-<!-- ==========================
-     ANNOUNCEMENTS
-=========================== -->
-
-<section class="section" id="announcements">
-
-<h2 class="title">
-📢 Latest <span>Announcements</span>
-</h2>
-
-<div
-id="announcementBox"
-class="card"
->
-
-<p class="loading">
-Loading announcements...
-</p>
-
-</div>
-
-</section>
-
-<!-- ==========================
-     RESOURCES
-=========================== -->
-
-<section class="section" id="resources">
-
-<h2 class="title">
-📚 Latest <span>Resources</span>
-</h2>
-
-<div
-id="resourceContainer"
-class="grid"
->
-
-<div class="card loading">
-
-<h3>Loading...</h3>
-
-<p>
-Please wait while resources are being fetched.
-</p>
-
-</div>
-
-</div>
-
-</section>
-
-<!-- ==========================
-     FEATURES
-=========================== -->
-
-<section class="section">
-
-<h2 class="title">
-Why Choose <span>The Scholars</span>
-</h2>
-
-<div class="grid">
-
-<div class="card">
-
-<h3>📘 Quality Notes</h3>
-
-<p>
-Easy-to-understand revision notes prepared for students.
-</p>
-
-</div>
-
-<div class="card">
-
-<h3>📄 Previous Year Questions</h3>
-
-<p>
-Practice important board questions with solutions.
-</p>
-
-</div>
-
-<div class="card">
-
-<h3>⚡ Fast Updates</h3>
-
-<p>
-Latest notes and announcements are updated automatically.
-</p>
-
-</div>
-
-<div class="card">
-
-<h3>☁ Cloud Storage</h3>
-
-<p>
-Resources are loaded directly from your backend without editing HTML.
-</p>
-
-</div>
-
-<div class="card">
-
-<h3>🔍 Smart Search</h3>
-
-<p>
-Use the search box to instantly filter notes and subjects.
-</p>
-
-</div>
-
-<div class="card">
-
-<h3>📱 Mobile Friendly</h3>
-
-<p>
-Fully responsive design for phones, tablets and desktops.
-</p>
-
-</div>
-
-</div>
-
-</section>
-
-<!-- ==========================
-     JOIN SECTION
-=========================== -->
-
-<section class="section">
-
-<div class="card" style="text-align:center;">
-
-<h2 style="font-size:42px;">
-Join
-<span style="color:#ff2d2d;">
-The Scholars
-</span>
-</h2>
-
-<p style="margin:20px 0;color:#bdbdbd;line-height:1.8;">
-
-Get Notes, PYQs, Question Banks,
-Sample Papers and Daily Updates
-directly on WhatsApp.
-
-</p>
+<div class="heroButtons">
 
 <a
-href="https://chat.whatsapp.com/"
-class="btn red"
->
+href="#resources"
+class="primaryBtn">
 
-Join Community
+Browse Resources
 
 </a>
+
+<a
+href="#announcements"
+class="secondaryBtn">
+
+Latest Updates
+
+</a>
+
+</div>
+
+<div class="heroStats">
+
+<div>
+
+<h2 id="totalResources">
+
+0
+
+</h2>
+
+<span>
+
+Resources
+
+</span>
+
+</div>
+
+<div>
+
+<h2 id="totalSubjects">
+
+0
+
+</h2>
+
+<span>
+
+Subjects
+
+</span>
+
+</div>
+
+<div>
+
+<h2 id="totalClasses">
+
+0
+
+</h2>
+
+<span>
+
+Classes
+
+</span>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="heroImage">
+
+<div class="glassCard">
+
+<div class="status">
+
+LIVE DATABASE
+
+</div>
+
+<h2>
+
+The Scholars
+
+</h2>
+
+<p>
+
+Connected with Supabase
+
+</p>
+
+<div class="pulse"></div>
+
+</div>
 
 </div>
 
 </section>
-<!-- ==========================
-     FOOTER
-=========================== -->
 
-<footer style="
-margin-top:80px;
-padding:60px 20px;
-background:#050505;
-border-top:1px solid #222;
-text-align:center;">
+<!-- Access Code Popup -->
 
-<h2 style="font-size:34px;margin-bottom:10px;">
-The <span style="color:#ff2d2d;">Scholars</span>
-</h2>
+<div
+id="unlockPopup"
+class="popup">
 
-<p style="
-max-width:650px;
-margin:auto;
-color:#999;
-line-height:1.8;">
+<div class="popupBox">
 
-Helping students learn smarter with Notes,
-PYQs, Sample Papers and Study Resources.
+<div class="popupIcon">
 
-</p>
-
-<div style="
-margin-top:35px;
-display:flex;
-justify-content:center;
-gap:20px;
-flex-wrap:wrap;">
-
-<a href="#" class="btn dark">Home</a>
-
-<a href="#announcements" class="btn dark">
-Announcements
-</a>
-
-<a href="#resources" class="btn dark">
-Resources
-</a>
-
-<a href="#" class="btn red">
-The Scholars
-</a>
+🔐
 
 </div>
 
-<p style="
-margin-top:40px;
-color:#666;
-font-size:14px;">
+<h2>
 
-© 2026 The Scholars • All Rights Reserved
+Protected Resource
+
+</h2>
+
+<p>
+
+Enter your access code to unlock this resource.
 
 </p>
 
-</footer>
+<input
 
-<!-- Back To Top -->
+type="password"
 
-<button id="topBtn">↑</button>
+id="codeInput"
 
-<style>
+placeholder="Access Code"
+
+autocomplete="off"
+
+>
+
+<p
+id="errorMsg"
+class="errorMsg">
+
+</p>
+
+<div class="popupButtons">
+
+<button
+id="unlockBtn"
+onclick="checkAccessCode()">
+
+Unlock
+
+</button>
+
+<button
+onclick="closePopup()">
+
+Cancel
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- Remaining sections continue below -->
+     /* =====================================
+   THE SCHOLARS
+   PREMIUM UI
+   PART 2A
+===================================== */
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:"Poppins",sans-serif;
+scroll-behavior:smooth;
+}
+
+:root{
+
+--bg:#050505;
+--bg2:#0b0b0b;
+--card:#111111;
+--card2:#181818;
+
+--primary:#ff2d2d;
+--primary2:#ff5555;
+
+--white:#ffffff;
+--text:#d4d4d4;
+
+--border:rgba(255,255,255,.08);
+
+--glass:rgba(255,255,255,.05);
+
+--shadow:
+0 20px 50px
+rgba(255,45,45,.18);
+
+}
+
+body{
+
+background:var(--bg);
+
+color:white;
+
+overflow-x:hidden;
+
+min-height:100vh;
+
+}
+
+
+/* =======================
+BACKGROUND
+======================= */
+
+.bg1,
+.bg2,
+.bg3{
+
+position:fixed;
+
+border-radius:50%;
+
+filter:blur(130px);
+
+pointer-events:none;
+
+z-index:-5;
+
+animation:float 14s ease-in-out infinite;
+
+}
+
+.bg1{
+
+width:520px;
+
+height:520px;
+
+background:#ff2d2d22;
+
+top:-180px;
+
+left:-180px;
+
+}
+
+.bg2{
+
+width:430px;
+
+height:430px;
+
+background:#ff000018;
+
+right:-140px;
+
+top:35%;
+
+animation-delay:3s;
+
+}
+
+.bg3{
+
+width:340px;
+
+height:340px;
+
+background:#ffffff08;
+
+bottom:-120px;
+
+left:30%;
+
+animation-delay:6s;
+
+}
+
+@keyframes float{
+
+0%,100%{
+
+transform:
+translateY(0)
+translateX(0);
+
+}
+
+50%{
+
+transform:
+translateY(-35px)
+translateX(25px);
+
+}
+
+}
+
+
+/* =======================
+NAVBAR
+======================= */
+
+#navbar{
+
+position:fixed;
+
+top:0;
+
+left:0;
+
+width:100%;
+
+height:82px;
+
+display:flex;
+
+align-items:center;
+
+justify-content:space-between;
+
+padding:0 7%;
+
+background:
+rgba(10,10,10,.75);
+
+backdrop-filter:
+blur(18px);
+
+border-bottom:
+1px solid
+var(--border);
+
+z-index:1000;
+
+transition:.35s;
+
+}
+
+.logo{
+
+display:flex;
+
+align-items:center;
+
+gap:14px;
+
+}
+
+.logoIcon{
+
+width:55px;
+
+height:55px;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+font-size:25px;
+
+border-radius:18px;
+
+background:
+
+linear-gradient(
+135deg,
+var(--primary),
+#ff7070
+);
+
+box-shadow:
+0 0 25px
+rgba(255,45,45,.4);
+
+}
+
+.logo h2{
+
+font-size:24px;
+
+font-weight:800;
+
+}
+
+.logo span{
+
+font-size:13px;
+
+color:#bdbdbd;
+
+}
+
+.navLinks{
+
+display:flex;
+
+gap:34px;
+
+list-style:none;
+
+}
+
+.navLinks a{
+
+color:#ddd;
+
+text-decoration:none;
+
+font-weight:500;
+
+transition:.3s;
+
+position:relative;
+
+}
+
+.navLinks a::after{
+
+content:"";
+
+position:absolute;
+
+bottom:-8px;
+
+left:0;
+
+width:0;
+
+height:2px;
+
+background:var(--primary);
+
+transition:.3s;
+
+}
+
+.navLinks a:hover{
+
+color:white;
+
+}
+
+.navLinks a:hover::after{
+
+width:100%;
+
+}
+
+.navButtons{
+
+display:flex;
+
+align-items:center;
+
+gap:15px;
+
+}
+
+#themeBtn{
+
+width:48px;
+
+height:48px;
+
+border:none;
+
+cursor:pointer;
+
+border-radius:50%;
+
+background:#181818;
+
+color:white;
+
+font-size:18px;
+
+transition:.3s;
+
+}
+
+#themeBtn:hover{
+
+transform:rotate(180deg);
+
+background:var(--primary);
+
+}
+
+.navExplore{
+
+padding:13px 24px;
+
+border-radius:40px;
+
+text-decoration:none;
+
+background:linear-gradient(
+135deg,
+var(--primary),
+#ff5050
+);
+
+color:white;
+
+font-weight:700;
+
+transition:.35s;
+
+}
+
+.navExplore:hover{
+
+transform:
+translateY(-4px);
+
+box-shadow:
+
+0 10px 35px
+
+rgba(255,45,45,.45);
+
+}
+
+
+/* =======================
+HERO
+======================= */
+
+.hero{
+
+position:relative;
+
+min-height:100vh;
+
+display:grid;
+
+grid-template-columns:
+
+1.1fr .9fr;
+
+align-items:center;
+
+padding:
+
+140px 8%
+
+80px;
+
+gap:60px;
+
+}
+
+.heroGlow{
+
+position:absolute;
+
+width:700px;
+
+height:700px;
+
+background:
+
+radial-gradient(
+
+circle,
+
+rgba(255,45,45,.18),
+
+transparent 70%
+
+);
+
+left:-180px;
+
+top:-200px;
+
+z-index:-1;
+
+}
+
+.heroContent{
+
+animation:
+
+heroFade
+
+1s ease;
+
+}
+
+@keyframes heroFade{
+
+from{
+
+opacity:0;
+
+transform:
+
+translateY(50px);
+
+}
+
+to{
+
+opacity:1;
+
+transform:none;
+
+}
+
+}
+
+.heroBadge{
+
+display:inline-flex;
+
+align-items:center;
+
+padding:
+
+10px 20px;
+
+border-radius:50px;
+
+background:
+
+rgba(255,45,45,.12);
+
+border:
+
+1px solid
+
+rgba(255,45,45,.3);
+
+color:#ff9090;
+
+font-weight:600;
+
+margin-bottom:28px;
+
+}
+
+.hero h1{
+
+font-size:72px;
+
+line-height:1.1;
+
+font-weight:800;
+
+}
+
+.hero h1 span{
+
+display:block;
+
+margin-top:8px;
+
+color:var(--primary);
+
+}
+
+.hero p{
+
+margin-top:28px;
+
+font-size:18px;
+
+line-height:1.9;
+
+max-width:650px;
+
+color:#cfcfcf;
+
+}
+
+.heroSearch{
+
+margin-top:40px;
+
+display:flex;
+
+gap:15px;
+
+flex-wrap:wrap;
+
+}
+
+.heroSearch input{
+
+flex:1;
+
+min-width:280px;
+
+padding:
+
+18px 24px;
+
+border-radius:50px;
+
+border:
+
+2px solid #202020;
+
+background:#111;
+
+color:white;
+
+font-size:17px;
+
+outline:none;
+
+transition:.35s;
+
+}
+
+.heroSearch input:focus{
+
+border-color:
+
+var(--primary);
+
+box-shadow:
+
+0 0 30px
+
+rgba(255,45,45,.3);
+
+}
+
+#heroSearchBtn{
+
+padding:
+
+18px 34px;
+
+border:none;
+
+cursor:pointer;
+
+border-radius:50px;
+
+font-weight:700;
+
+background:
+
+linear-gradient(
+135deg,
+var(--primary),
+#ff5555
+);
+
+color:white;
+
+transition:.35s;
+
+}
+
+#heroSearchBtn:hover{
+
+transform:
+
+translateY(-4px);
+
+box-shadow:
+
+0 10px 35px
+
+rgba(255,45,45,.35);
+
+}
+     /* =====================================
+   PART 2B-1
+   Resource Cards
+   Announcement
+   Popup
+===================================== */
+
+
+/* =========================
+SECTION
+========================= */
+
+.section{
+
+width:min(92%,1400px);
+
+margin:90px auto;
+
+}
+
+.sectionTitle{
+
+font-size:44px;
+
+font-weight:800;
+
+margin-bottom:18px;
+
+}
+
+.sectionTitle span{
+
+color:var(--primary);
+
+}
+
+.sectionSub{
+
+color:#a7a7a7;
+
+margin-bottom:45px;
+
+line-height:1.8;
+
+}
+
+
+/* =========================
+GRID
+========================= */
+
+.grid{
+
+display:grid;
+
+grid-template-columns:
+
+repeat(auto-fit,minmax(330px,1fr));
+
+gap:28px;
+
+}
+
+
+/* =========================
+RESOURCE CARD
+========================= */
+
+.resource-card{
+
+position:relative;
+
+background:
+
+linear-gradient(
+
+180deg,
+
+rgba(255,255,255,.05),
+
+rgba(255,255,255,.03)
+
+);
+
+backdrop-filter:blur(18px);
+
+border:
+
+1px solid rgba(255,255,255,.08);
+
+border-radius:26px;
+
+padding:28px;
+
+overflow:hidden;
+
+transition:.45s;
+
+opacity:0;
+
+transform:translateY(60px);
+
+animation:
+
+cardShow
+
+.7s forwards;
+
+}
+
+@keyframes cardShow{
+
+to{
+
+opacity:1;
+
+transform:none;
+
+}
+
+}
+
+.resource-card::before{
+
+content:"";
+
+position:absolute;
+
+top:0;
+
+left:0;
+
+width:100%;
+
+height:4px;
+
+background:
+
+linear-gradient(
+
+90deg,
+
+#ff2d2d,
+
+#ff7777,
+
+#ff2d2d
+
+);
+
+}
+
+.resource-card:hover{
+
+transform:
+
+translateY(-12px)
+
+scale(1.02);
+
+box-shadow:
+
+0 25px 60px
+
+rgba(255,45,45,.22);
+
+border-color:
+
+rgba(255,45,45,.45);
+
+}
+
+.resource-content h3{
+
+font-size:25px;
+
+margin-bottom:16px;
+
+font-weight:700;
+
+}
+
+.resource-content p{
+
+color:#bfbfbf;
+
+line-height:1.8;
+
+margin-bottom:24px;
+
+}
+
+
+/* =========================
+META TAGS
+========================= */
+
+.resource-meta{
+
+display:flex;
+
+flex-wrap:wrap;
+
+gap:12px;
+
+margin-bottom:25px;
+
+}
+
+.resource-meta span{
+
+padding:
+
+9px 16px;
+
+border-radius:50px;
+
+background:#181818;
+
+border:
+
+1px solid #2a2a2a;
+
+font-size:13px;
+
+font-weight:600;
+
+color:#ddd;
+
+transition:.3s;
+
+}
+
+.resource-meta span:hover{
+
+background:
+
+var(--primary);
+
+border-color:
+
+var(--primary);
+
+}
+
+
+/* =========================
+BUTTON
+========================= */
+
+.open-btn{
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+gap:10px;
+
+width:100%;
+
+padding:16px;
+
+border-radius:18px;
+
+text-decoration:none;
+
+font-weight:700;
+
+font-size:15px;
+
+background:
+
+linear-gradient(
+
+135deg,
+
+var(--primary),
+
+#ff6666
+
+);
+
+color:white;
+
+transition:.35s;
+
+}
+
+.open-btn:hover{
+
+transform:
+
+translateY(-4px);
+
+box-shadow:
+
+0 15px 35px
+
+rgba(255,45,45,.45);
+
+}
+
+
+/* =========================
+ANNOUNCEMENT
+========================= */
+
+.announcement-card{
+
+background:
+
+linear-gradient(
+
+135deg,
+
+rgba(255,45,45,.12),
+
+rgba(255,255,255,.04)
+
+);
+
+border:
+
+1px solid rgba(255,45,45,.25);
+
+border-radius:28px;
+
+padding:35px;
+
+position:relative;
+
+overflow:hidden;
+
+}
+
+.announcement-card::after{
+
+content:"📢";
+
+position:absolute;
+
+right:25px;
+
+top:20px;
+
+font-size:55px;
+
+opacity:.08;
+
+}
+
+.announcement-card h3{
+
+font-size:28px;
+
+margin-bottom:18px;
+
+}
+
+.announcement-card p{
+
+color:#d0d0d0;
+
+line-height:1.9;
+
+}
+
+
+/* =========================
+POPUP
+========================= */
+
+.popup{
+
+position:fixed;
+
+inset:0;
+
+background:
+
+rgba(0,0,0,.82);
+
+display:none;
+
+justify-content:center;
+
+align-items:center;
+
+z-index:99999;
+
+backdrop-filter:blur(12px);
+
+animation:
+
+fadePopup
+
+.35s;
+
+}
+
+@keyframes fadePopup{
+
+from{
+
+opacity:0;
+
+}
+
+to{
+
+opacity:1;
+
+}
+
+}
+
+.popupBox{
+
+width:min(92%,420px);
+
+background:#111;
+
+border-radius:30px;
+
+padding:38px;
+
+text-align:center;
+
+border:
+
+1px solid rgba(255,255,255,.08);
+
+box-shadow:
+
+0 25px 70px
+
+rgba(0,0,0,.5);
+
+animation:
+
+popupScale
+
+.35s;
+
+}
+
+@keyframes popupScale{
+
+from{
+
+transform:
+
+scale(.8);
+
+opacity:0;
+
+}
+
+to{
+
+transform:scale(1);
+
+opacity:1;
+
+}
+
+}
+
+.popupIcon{
+
+width:85px;
+
+height:85px;
+
+margin:auto;
+
+margin-bottom:20px;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+font-size:40px;
+
+border-radius:50%;
+
+background:
+
+linear-gradient(
+
+135deg,
+
+var(--primary),
+
+#ff7777
+
+);
+
+box-shadow:
+
+0 0 35px
+
+rgba(255,45,45,.35);
+
+}
+
+.popupBox h2{
+
+margin-bottom:10px;
+
+font-size:30px;
+
+}
+
+.popupBox p{
+
+color:#bbbbbb;
+
+line-height:1.7;
+
+margin-bottom:20px;
+
+}
+
+.popupBox input{
+
+width:100%;
+
+padding:17px;
+
+border:none;
+
+outline:none;
+
+border-radius:16px;
+
+background:#1b1b1b;
+
+color:white;
+
+font-size:16px;
+
+border:2px solid #222;
+
+transition:.35s;
+
+}
+
+.popupBox input:focus{
+
+border-color:
+
+var(--primary);
+
+box-shadow:
+
+0 0 20px
+
+rgba(255,45,45,.25);
+
+}
+
+.popupButtons{
+
+display:flex;
+
+gap:12px;
+
+margin-top:25px;
+
+}
+
+.popupButtons button{
+
+flex:1;
+
+padding:15px;
+
+border:none;
+
+border-radius:16px;
+
+cursor:pointer;
+
+font-weight:700;
+
+transition:.3s;
+
+}
+
+#unlockBtn{
+
+background:
+
+linear-gradient(
+
+135deg,
+
+var(--primary),
+
+#ff5555
+
+);
+
+color:white;
+
+}
+
+.popupButtons button:last-child{
+
+background:#1d1d1d;
+
+color:white;
+
+}
+
+.popupButtons button:hover{
+
+transform:
+
+translateY(-3px);
+
+}
+
+.errorMsg{
+
+color:#ff6767;
+
+font-size:14px;
+
+margin-top:12px;
+
+min-height:20px;
+
+}
+     /* =====================================
+   PART 2B-2A
+   Hero Stats
+   Glass Card
+   Skeleton Loading
+   Scrollbar
+======================================*/
+
+
+/* ===========================
+HERO STATS
+=========================== */
+
+.heroStats{
+
+margin-top:55px;
+
+display:grid;
+
+grid-template-columns:repeat(3,1fr);
+
+gap:22px;
+
+}
+
+.heroStats div{
+
+padding:25px;
+
+border-radius:24px;
+
+background:rgba(255,255,255,.04);
+
+backdrop-filter:blur(18px);
+
+border:1px solid rgba(255,255,255,.08);
+
+transition:.4s;
+
+text-align:center;
+
+}
+
+.heroStats div:hover{
+
+transform:translateY(-8px);
+
+border-color:rgba(255,45,45,.4);
+
+box-shadow:0 20px 45px rgba(255,45,45,.18);
+
+}
+
+.heroStats h2{
+
+font-size:38px;
+
+font-weight:800;
+
+color:var(--primary);
+
+margin-bottom:10px;
+
+}
+
+.heroStats span{
+
+font-size:14px;
+
+letter-spacing:1px;
+
+color:#bfbfbf;
+
+text-transform:uppercase;
+
+}
+
+
+/* ===========================
+GLASS CARD
+=========================== */
+
+.heroImage{
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+}
+
+.glassCard{
+
+width:380px;
+
+height:420px;
+
+border-radius:35px;
+
+background:
+
+linear-gradient(
+
+135deg,
+
+rgba(255,255,255,.08),
+
+rgba(255,255,255,.03)
+
+);
+
+backdrop-filter:blur(24px);
+
+border:1px solid rgba(255,255,255,.08);
+
+padding:35px;
+
+position:relative;
+
+overflow:hidden;
+
+box-shadow:
+
+0 25px 70px rgba(255,45,45,.18);
+
+animation:floatCard 6s ease-in-out infinite;
+
+}
+
+@keyframes floatCard{
+
+0%,100%{
+
+transform:translateY(0);
+
+}
+
+50%{
+
+transform:translateY(-18px);
+
+}
+
+}
+
+.glassCard::before{
+
+content:"";
+
+position:absolute;
+
+width:220px;
+
+height:220px;
+
+background:rgba(255,45,45,.15);
+
+border-radius:50%;
+
+top:-80px;
+
+right:-80px;
+
+filter:blur(25px);
+
+}
+
+.status{
+
+display:inline-flex;
+
+padding:10px 18px;
+
+border-radius:50px;
+
+background:rgba(0,255,120,.12);
+
+border:1px solid rgba(0,255,120,.3);
+
+color:#63ff9b;
+
+font-weight:700;
+
+font-size:14px;
+
+margin-bottom:30px;
+
+}
+
+.glassCard h2{
+
+font-size:36px;
+
+margin-bottom:15px;
+
+}
+
+.glassCard p{
+
+line-height:1.9;
+
+color:#cfcfcf;
+
+margin-bottom:35px;
+
+}
+
+.pulse{
+
+width:18px;
+
+height:18px;
+
+border-radius:50%;
+
+background:#00ff6e;
+
+position:absolute;
+
+bottom:30px;
+
+right:30px;
+
+animation:pulse 2s infinite;
+
+}
+
+@keyframes pulse{
+
+0%{
+
+box-shadow:0 0 0 0 rgba(0,255,120,.6);
+
+}
+
+70%{
+
+box-shadow:0 0 0 18px rgba(0,255,120,0);
+
+}
+
+100%{
+
+box-shadow:0 0 0 0 rgba(0,255,120,0);
+
+}
+
+}
+
+
+/* ===========================
+SKELETON LOADER
+=========================== */
+
+.skeleton{
+
+position:relative;
+
+overflow:hidden;
+
+background:#181818;
+
+border-radius:18px;
+
+}
+
+.skeleton::before{
+
+content:"";
+
+position:absolute;
+
+top:0;
+
+left:-100%;
+
+width:100%;
+
+height:100%;
+
+background:
+
+linear-gradient(
+
+90deg,
+
+transparent,
+
+rgba(255,255,255,.08),
+
+transparent
+
+);
+
+animation:loading 1.2s linear infinite;
+
+}
+
+@keyframes loading{
+
+100%{
+
+left:100%;
+
+}
+
+}
+
+.skeletonTitle{
+
+height:24px;
+
+width:70%;
+
+margin-bottom:20px;
+
+}
+
+.skeletonText{
+
+height:16px;
+
+width:100%;
+
+margin-bottom:12px;
+
+}
+
+.skeletonBtn{
+
+height:50px;
+
+margin-top:25px;
+
+border-radius:18px;
+
+}
+
+
+/* ===========================
+PREMIUM SCROLLBAR
+=========================== */
+
+::-webkit-scrollbar{
+
+width:11px;
+
+}
+
+::-webkit-scrollbar-track{
+
+background:#090909;
+
+}
+
+::-webkit-scrollbar-thumb{
+
+background:
+
+linear-gradient(
+
+180deg,
+
+#ff2d2d,
+
+#ff6666
+
+);
+
+border-radius:30px;
+
+}
+
+::-webkit-scrollbar-thumb:hover{
+
+background:#ff4040;
+
+}
+
+
+/* ===========================
+SELECTION
+=========================== */
+
+::selection{
+
+background:#ff2d2d;
+
+color:#fff;
+
+}
+     /* =====================================
+   PART 2B-2B
+   Responsive
+   Toast
+   Particles
+   Scroll Animations
+======================================*/
+
+
+/* ===========================
+TOAST NOTIFICATION
+=========================== */
+
+.toast{
+
+position:fixed;
+
+top:100px;
+
+right:25px;
+
+min-width:320px;
+
+padding:18px 22px;
+
+border-radius:18px;
+
+background:#141414;
+
+border:1px solid rgba(255,255,255,.08);
+
+display:flex;
+
+align-items:center;
+
+gap:15px;
+
+color:#fff;
+
+font-weight:600;
+
+box-shadow:0 20px 50px rgba(0,0,0,.45);
+
+transform:translateX(120%);
+
+transition:.45s;
+
+z-index:999999;
+
+overflow:hidden;
+
+}
+
+.toast.show{
+
+transform:translateX(0);
+
+}
+
+.toast.success{
+
+border-left:5px solid #00d26a;
+
+}
+
+.toast.error{
+
+border-left:5px solid #ff2d2d;
+
+}
+
+.toast.warning{
+
+border-left:5px solid #ffb100;
+
+}
+
+.toast::after{
+
+content:"";
+
+position:absolute;
+
+bottom:0;
+
+left:0;
+
+height:3px;
+
+width:100%;
+
+background:linear-gradient(90deg,#ff2d2d,#ff7777);
+
+animation:toastBar 4s linear forwards;
+
+}
+
+@keyframes toastBar{
+
+from{
+
+width:100%;
+
+}
+
+to{
+
+width:0;
+
+}
+
+}
+
+
+/* ===========================
+BACK TO TOP
+=========================== */
 
 #topBtn{
+
 position:fixed;
-bottom:30px;
-right:25px;
-width:55px;
-height:55px;
+
+right:28px;
+
+bottom:28px;
+
+width:58px;
+
+height:58px;
+
 border:none;
+
 border-radius:50%;
-background:#ff2d2d;
+
+background:linear-gradient(135deg,var(--primary),#ff7070);
+
 color:#fff;
+
 font-size:22px;
+
 cursor:pointer;
-display:none;
-box-shadow:0 0 20px rgba(255,0,0,.4);
-transition:.3s;
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+opacity:0;
+
+visibility:hidden;
+
+transition:.35s;
+
+box-shadow:0 15px 35px rgba(255,45,45,.35);
+
 z-index:9999;
+
+}
+
+#topBtn.show{
+
+opacity:1;
+
+visibility:visible;
+
 }
 
 #topBtn:hover{
-transform:scale(1.1);
+
+transform:translateY(-6px) rotate(360deg);
+
 }
 
-.fade{
+
+/* ===========================
+REVEAL ANIMATION
+=========================== */
+
+.reveal{
+
 opacity:0;
-transform:translateY(50px);
+
+transform:translateY(60px);
+
 transition:1s;
+
 }
 
-.fade.show{
+.reveal.active{
+
 opacity:1;
+
 transform:none;
+
 }
 
-</style>
 
-<!-- Backend Scripts -->
+/* ===========================
+FLOATING PARTICLES
+=========================== */
+
+.particle{
+
+position:fixed;
+
+width:8px;
+
+height:8px;
+
+background:rgba(255,45,45,.4);
+
+border-radius:50%;
+
+pointer-events:none;
+
+animation:particleMove linear infinite;
+
+z-index:-2;
+
+}
+
+@keyframes particleMove{
+
+0%{
+
+transform:translateY(100vh) scale(0);
+
+opacity:0;
+
+}
+
+20%{
+
+opacity:1;
+
+}
+
+100%{
+
+transform:translateY(-120px) scale(1);
+
+opacity:0;
+
+}
+
+}
+
+
+/* ===========================
+BUTTON RIPPLE
+=========================== */
+
+.ripple{
+
+position:absolute;
+
+border-radius:50%;
+
+transform:scale(0);
+
+background:rgba(255,255,255,.35);
+
+animation:ripple .6s linear;
+
+pointer-events:none;
+
+}
+
+@keyframes ripple{
+
+to{
+
+transform:scale(5);
+
+opacity:0;
+
+}
+
+}
+
+
+/* ===========================
+NAVBAR SCROLL EFFECT
+=========================== */
+
+#navbar.scrolled{
+
+padding:0 7%;
+
+height:72px;
+
+background:rgba(5,5,5,.95);
+
+backdrop-filter:blur(24px);
+
+box-shadow:0 10px 30px rgba(0,0,0,.45);
+
+}
+
+
+/* ===========================
+HOVER GLOW
+=========================== */
+
+.glow{
+
+transition:.35s;
+
+}
+
+.glow:hover{
+
+box-shadow:
+
+0 0 25px rgba(255,45,45,.25),
+
+0 0 60px rgba(255,45,45,.15);
+
+}
+
+
+/* ===========================
+IMAGE HOVER
+=========================== */
+
+.zoom{
+
+overflow:hidden;
+
+border-radius:20px;
+
+}
+
+.zoom img{
+
+transition:.5s;
+
+}
+
+.zoom:hover img{
+
+transform:scale(1.08);
+
+}
+
+
+/* ===========================
+LOADING SPINNER
+=========================== */
+
+.spinner{
+
+width:60px;
+
+height:60px;
+
+border:5px solid rgba(255,255,255,.08);
+
+border-top:5px solid var(--primary);
+
+border-radius:50%;
+
+margin:auto;
+
+animation:spin 1s linear infinite;
+
+}
+
+@keyframes spin{
+
+100%{
+
+transform:rotate(360deg);
+
+}
+
+
+/* ===========================
+THEME TRANSITION
+=========================== */
+
+body,
+nav,
+.resource-card,
+.card,
+.popupBox,
+button,
+input{
+
+transition:
+
+background .35s,
+
+color .35s,
+
+border-color .35s,
+
+box-shadow .35s,
+
+transform .35s;
+
+}
+
+
+/* ===========================
+RESPONSIVE
+=========================== */
+
+@media(max-width:1100px){
+
+.hero{
+
+grid-template-columns:1fr;
+
+text-align:center;
+
+}
+
+.heroImage{
+
+margin-top:60px;
+
+}
+
+.heroStats{
+
+grid-template-columns:repeat(3,1fr);
+
+}
+
+.heroButtons{
+
+justify-content:center;
+
+}
+
+.heroSearch{
+
+justify-content:center;
+
+}
+
+}
+
+@media(max-width:768px){
+
+#navbar{
+
+padding:0 20px;
+
+}
+
+.navLinks{
+
+display:none;
+
+}
+
+.hero{
+
+padding:120px 22px 70px;
+
+}
+
+.hero h1{
+
+font-size:48px;
+
+}
+
+.hero p{
+
+font-size:16px;
+
+}
+
+.heroStats{
+
+grid-template-columns:1fr;
+
+}
+
+.glassCard{
+
+width:100%;
+
+height:auto;
+
+}
+
+.grid{
+
+grid-template-columns:1fr;
+
+}
+
+.sectionTitle{
+
+font-size:34px;
+
+}
+
+.popupBox{
+
+padding:28px;
+
+}
+
+.popupButtons{
+
+flex-direction:column;
+
+}
+
+.toast{
+
+right:12px;
+
+left:12px;
+
+min-width:auto;
+
+}
+
+}
+
+@media(max-width:500px){
+
+.hero h1{
+
+font-size:38px;
+
+}
+
+.heroBadge{
+
+font-size:13px;
+
+}
+
+.heroSearch input{
+
+min-width:100%;
+
+}
+
+#heroSearchBtn{
+
+width:100%;
+
+}
+
+.logo h2{
+
+font-size:20px;
+
+}
+
+.logo span{
+
+display:none;
+
+}
+
+.resource-card{
+
+padding:22px;
+
+}
+
+}
+
+<!-- ===========================
+LIVE DASHBOARD
+=========================== -->
+
+<section class="section">
+
+<div class="dashboard">
+
+<div class="dashCard">
+
+<h2 id="liveResources">
+
+0
+
+</h2>
+
+<p>Total Resources</p>
+
+</div>
+
+<div class="dashCard">
+
+<h2 id="liveSubjects">
+
+0
+
+</h2>
+
+<p>Subjects</p>
+
+</div>
+
+<div class="dashCard">
+
+<h2 id="liveClasses">
+
+0
+
+</h2>
+
+<p>Classes</p>
+
+</div>
+
+<div class="dashCard">
+
+<h2>
+
+24/7
+
+</h2>
+
+<p>Cloud Access</p>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- ===========================
+FEATURED ANNOUNCEMENT
+=========================== -->
+
+<section
+class="section"
+id="announcements">
+
+<div class="sectionHeader">
+
+<h2 class="sectionTitle">
+
+📢 Latest
+<span>Announcement</span>
+
+</h2>
+
+<p class="sectionSub">
+
+Stay updated with the newest information from The Scholars.
+
+</p>
+
+</div>
+
+<div
+id="announcementBox"
+class="announcement-card skeleton">
+
+</div>
+
+</section>
+
+
+
+<!-- ===========================
+FILTERS
+=========================== -->
+
+<section class="section">
+
+<div class="filters">
+
+<button class="filter active">
+
+All
+
+</button>
+
+<button class="filter">
+
+Notes
+
+</button>
+
+<button class="filter">
+
+PYQs
+
+</button>
+
+<button class="filter">
+
+Question Bank
+
+</button>
+
+<button class="filter">
+
+Sample Paper
+
+</button>
+
+<button class="filter">
+
+Important Questions
+
+</button>
+
+</div>
+
+</section>
+
+
+
+<!-- ===========================
+LATEST RESOURCES
+=========================== -->
+
+<section
+class="section"
+id="resources">
+
+<div class="sectionHeader">
+
+<h2 class="sectionTitle">
+
+📚 Latest
+<span>Resources</span>
+
+</h2>
+
+<p class="sectionSub">
+
+Recently uploaded study material.
+
+</p>
+
+</div>
+
+<div
+
+id="resourceContainer"
+
+class="grid"
+
+>
+
+<div class="resource-card skeleton">
+
+<div class="skeleton skeletonTitle"></div>
+
+<div class="skeleton skeletonText"></div>
+
+<div class="skeleton skeletonText"></div>
+
+<div class="skeleton skeletonBtn"></div>
+
+</div>
+
+<div class="resource-card skeleton">
+
+<div class="skeleton skeletonTitle"></div>
+
+<div class="skeleton skeletonText"></div>
+
+<div class="skeleton skeletonText"></div>
+
+<div class="skeleton skeletonBtn"></div>
+
+</div>
+
+</div>
+
+</section>
+
+
+
+<!-- ===========================
+TRENDING
+=========================== -->
+
+<section class="section">
+
+<div class="sectionHeader">
+
+<h2 class="sectionTitle">
+
+🔥 Trending
+<span>Subjects</span>
+
+</h2>
+
+</div>
+
+<div class="grid">
+
+<div class="resource-card glow">
+
+<h3>
+
+Physics
+
+</h3>
+
+<p>
+
+Mechanics, Motion,
+Numericals,
+Revision Notes,
+PYQs.
+
+</p>
+
+</div>
+
+<div class="resource-card glow">
+
+<h3>
+
+Chemistry
+
+</h3>
+
+<p>
+
+Atomic Structure,
+Chemical Bonding,
+Language of Chemistry.
+
+</p>
+
+</div>
+
+<div class="resource-card glow">
+
+<h3>
+
+Biology
+
+</h3>
+
+<p>
+
+Cell,
+Plant Tissue,
+Life Processes
+and more.
+
+</p>
+
+</div>
+
+</div>
+
+</section>
+
+
+
+<!-- ===========================
+WHY CHOOSE US
+=========================== -->
+
+<section
+class="section"
+id="features">
+
+<div class="sectionHeader">
+
+<h2 class="sectionTitle">
+
+⭐ Why Choose
+<span>The Scholars</span>
+
+</h2>
+
+</div>
+
+<div class="grid">
+
+<div class="resource-card">
+
+<h3>
+
+⚡ Instant Updates
+
+</h3>
+
+<p>
+
+New resources automatically appear
+without editing the website.
+
+</p>
+
+</div>
+
+<div class="resource-card">
+
+<h3>
+
+☁ Cloud Database
+
+</h3>
+
+<p>
+
+Powered by Supabase backend
+for secure storage.
+
+</p>
+
+</div>
+
+<div class="resource-card">
+
+<h3>
+
+🔐 Protected Resources
+
+</h3>
+
+<p>
+
+Premium notes protected using
+Access Codes.
+
+</p>
+
+</div>
+
+<div class="resource-card">
+
+<h3>
+
+📱 Responsive Design
+
+</h3>
+
+<p>
+
+Works beautifully on
+phones,
+tablets
+and desktop.
+
+</p>
+
+</div>
+
+<div class="resource-card">
+
+<h3>
+
+🚀 Fast Performance
+
+</h3>
+
+<p>
+
+Optimized animations
+and loading.
+
+</p>
+
+</div>
+
+<div class="resource-card">
+
+<h3>
+
+🎓 Built For Students
+
+</h3>
+
+<p>
+
+Everything designed for
+quick exam preparation.
+
+</p>
+
+</div>
+
+</div>
+
+</section>
+<!-- =====================================
+PART 4
+Footer • FAQ • Toast • Mobile Menu
+====================================== -->
+
+
+<!-- ===========================
+ACHIEVEMENTS
+=========================== -->
+
+<section class="section">
+
+<div class="sectionHeader">
+
+<h2 class="sectionTitle">
+
+🏆 Our
+<span>Achievements</span>
+
+</h2>
+
+<p class="sectionSub">
+
+Growing every day with students across India.
+
+</p>
+
+</div>
+
+<div class="dashboard">
+
+<div class="dashCard">
+
+<h2>
+
+1000+
+
+</h2>
+
+<p>
+
+Resources Uploaded
+
+</p>
+
+</div>
+
+<div class="dashCard">
+
+<h2>
+
+100+
+
+</h2>
+
+<p>
+
+Study Chapters
+
+</p>
+
+</div>
+
+<div class="dashCard">
+
+<h2>
+
+24×7
+
+</h2>
+
+<p>
+
+Availability
+
+</p>
+
+</div>
+
+<div class="dashCard">
+
+<h2>
+
+99%
+
+</h2>
+
+<p>
+
+Student Satisfaction
+
+</p>
+
+</div>
+
+</div>
+
+</section>
+
+
+
+<!-- ===========================
+FAQ
+=========================== -->
+
+<section class="section">
+
+<div class="sectionHeader">
+
+<h2 class="sectionTitle">
+
+❓ Frequently Asked
+<span>Questions</span>
+
+</h2>
+
+</div>
+
+<div class="faq">
+
+<div class="faqItem">
+
+<button class="faqQuestion">
+
+How do I open Premium Resources?
+
+</button>
+
+<div class="faqAnswer">
+
+Premium resources require a valid Access Code.
+
+</div>
+
+</div>
+
+<div class="faqItem">
+
+<button class="faqQuestion">
+
+Are resources updated automatically?
+
+</button>
+
+<div class="faqAnswer">
+
+Yes.
+Whenever you upload a resource in Supabase,
+it appears automatically.
+
+</div>
+
+</div>
+
+<div class="faqItem">
+
+<button class="faqQuestion">
+
+Can I use this on mobile?
+
+</button>
+
+<div class="faqAnswer">
+
+Yes.
+The website is fully responsive.
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+
+<!-- ===========================
+NEWSLETTER
+=========================== -->
+
+<section class="section">
+
+<div class="newsletter">
+
+<h2>
+
+Stay Updated
+
+</h2>
+
+<p>
+
+Receive notifications whenever
+new study material is uploaded.
+
+</p>
+
+<div class="newsletterBox">
+
+<input
+
+type="email"
+
+placeholder="Your Email"
+
+>
+
+<button>
+
+Notify Me
+
+</button>
+
+</div>
+
+</div>
+
+</section>
+
+
+
+<!-- ===========================
+FOOTER
+=========================== -->
+
+<footer>
+
+<div class="footerTop">
+
+<div>
+
+<h2>
+
+🎓 The Scholars
+
+</h2>
+
+<p>
+
+Smart Learning Platform
+built for students.
+
+</p>
+
+</div>
+
+<div>
+
+<h3>
+
+Quick Links
+
+</h3>
+
+<a href="#home">
+
+Home
+
+</a>
+
+<a href="#resources">
+
+Resources
+
+</a>
+
+<a href="#announcements">
+
+Announcements
+
+</a>
+
+<a href="#features">
+
+Features
+
+</a>
+
+</div>
+
+<div>
+
+<h3>
+
+Resources
+
+</h3>
+
+<a href="#">
+
+Notes
+
+</a>
+
+<a href="#">
+
+Question Bank
+
+</a>
+
+<a href="#">
+
+PYQs
+
+</a>
+
+<a href="#">
+
+Sample Papers
+
+</a>
+
+</div>
+
+<div>
+
+<h3>
+
+Follow Us
+
+</h3>
+
+<a href="#">
+
+Instagram
+
+</a>
+
+<a href="#">
+
+Telegram
+
+</a>
+
+<a href="#">
+
+YouTube
+
+</a>
+
+<a href="#">
+
+WhatsApp
+
+</a>
+
+</div>
+
+</div>
+
+<div class="footerBottom">
+
+<p>
+
+© 2026 The Scholars.
+All Rights Reserved.
+
+</p>
+
+<p>
+
+Designed with ❤️ by
+The Scholars
+
+</p>
+
+</div>
+
+</footer>
+
+
+
+<!-- ===========================
+BACK TO TOP
+=========================== -->
+
+<button id="topBtn">
+
+↑
+
+</button>
+
+
+
+<!-- ===========================
+TOAST
+=========================== -->
+
+<div
+
+id="toast"
+
+class="toast">
+
+<span id="toastText">
+
+Success
+
+</span>
+
+</div>
+
+
+
+<!-- ===========================
+LOADING SCREEN
+=========================== -->
+
+<div
+
+id="loadingScreen">
+
+<div class="spinner"></div>
+
+<h2>
+
+Loading The Scholars...
+
+</h2>
+
+</div>
+
+
+
+<!-- ===========================
+PARTICLES
+=========================== -->
+
+<div id="particles"></div>
+
+
+
+<!-- ===========================
+MOBILE MENU
+=========================== -->
+
+<div id="mobileMenu">
+
+<a href="#home">
+
+Home
+
+</a>
+
+<a href="#resources">
+
+Resources
+
+</a>
+
+<a href="#announcements">
+
+Announcements
+
+</a>
+
+<a href="#features">
+
+Features
+
+</a>
+
+</div>
+
+
+
+<!-- ===========================
+SCRIPTS
+=========================== -->
+
 <script src="js/supabase.js"></script>
+
 <script src="js/app.js"></script>
 
-<script>
-
-
-
-});
-
-}
-
-/* Scroll Animation */
-
-const observer=new IntersectionObserver(entries=>{
-
-entries.forEach(entry=>{
-
-if(entry.isIntersecting){
-
-entry.target.classList.add("show");
-
-}
-
-});
-
-});
-
-document.querySelectorAll(".card,.hero-box")
-.forEach(el=>{
-
-el.classList.add("fade");
-
-observer.observe(el);
-
-});
-
-/* Back To Top */
-
-const topBtn=document.getElementById("topBtn");
-
-window.addEventListener("scroll",()=>{
-
-topBtn.style.display=
-window.scrollY>400
-? "block"
-: "none";
-
-});
-
-topBtn.onclick=()=>{
-
-window.scrollTo({
-
-top:0,
-behavior:"smooth"
-
-});
-
-};
-
-</script>
-
 </body>
+
 </html>
-  

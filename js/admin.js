@@ -1180,14 +1180,8 @@ await window.supabaseClient
 if(error){
 
 
-console.error(error);
-
-
-alert(
-
-"Code creation failed"
-
-);
+console.log(error);
+alert(error.message);
 
 
 return;

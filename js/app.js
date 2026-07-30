@@ -1,909 +1,1925 @@
-<!DOCTYPE html>
-<html lang="en">
+/*==================================================
+THE SCHOLARS
+Premium App v3.0
 
-<head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-
-<title>
-The Scholars - Premium Learning
-</title>
+app.js
+Part 1 - Core Setup
+==================================================*/
 
 
-<meta name="description"
-content="The Scholars - Notes, Resources and Learning Platform">
+//==============================
+// DOM ELEMENTS
+//==============================
+
+const resourceContainer =
+document.getElementById("resourceContainer");
+
+const announcementBox =
+document.getElementById("announcementBox");
+
+const searchInput =
+document.getElementById("searchInput");
+
+const loadingScreen =
+document.getElementById("loadingScreen");
+
+const toast =
+document.getElementById("toast");
+
+const toastText =
+document.getElementById("toastText");
+
+const topButton =
+document.getElementById("topBtn");
+
+const navbar =
+document.getElementById("navbar");
+
+const themeButton =
+document.getElementById("themeBtn");
+
+const mobileMenu =
+document.getElementById("mobileMenu");
 
 
-<!-- Main CSS -->
+// Access Popup
 
-<link rel="stylesheet" href="css/style.css">
+const unlockPopup =
+document.getElementById("unlockPopup");
+
+const codeInput =
+document.getElementById("codeInput");
+
+const errorMessage =
+document.getElementById("errorMsg");
 
 
-</head>
+
+//==============================
+// GLOBAL VARIABLES
+//==============================
+
+let allResources = [];
+
+let selectedPDF = "";
+
+let currentTheme =
+localStorage.getItem("theme") || "dark";
 
 
-<body>
+
+//==============================
+// APPLY THEME
+//==============================
+
+function applyTheme(){
+
+if(currentTheme==="light"){
+
+document.body.classList.add("light");
+
+}
+
+else{
+
+document.body.classList.remove("light");
+
+}
+
+}
 
 
-<!--==============================
-LOADING SCREEN
-==============================-->
+applyTheme();
 
-<div class="ts-loading" id="loadingScreen">
 
-<div class="ts-spinner"></div>
+
+//==============================
+// TOAST SYSTEM
+//==============================
+
+function showToast(message,type="success"){
+
+if(!toast || !toastText)
+return;
+
+
+toastText.innerText = message;
+
+
+toast.className =
+"ts-toast";
+
+
+toast.classList.add(type);
+
+
+setTimeout(()=>{
+
+toast.classList.add("show");
+
+},50);
+
+
+
+setTimeout(()=>{
+
+toast.classList.remove("show");
+
+},3500);
+
+
+}
+
+
+
+//==============================
+// LOADING SCREEN
+//==============================
+
+function hideLoading(){
+
+if(!loadingScreen)
+return;
+
+
+loadingScreen.style.opacity="0";
+
+
+setTimeout(()=>{
+
+loadingScreen.style.display="none";
+
+},500);
+
+
+}
+
+
+
+//==============================
+// SKELETON LOADER
+//==============================
+
+function showSkeleton(){
+
+if(!resourceContainer)
+return;
+
+
+resourceContainer.innerHTML="";
+
+
+for(let i=0;i<6;i++){
+
+
+resourceContainer.innerHTML += `
+
+<div class="ts-card">
+
+<div class="ts-skeleton ts-skeleton-title"></div>
+
+<div class="ts-skeleton ts-skeleton-text"></div>
+
+<div class="ts-skeleton ts-skeleton-text"></div>
+
+<div class="ts-skeleton ts-skeleton-btn"></div>
+
+</div>
+
+`;
+
+}
+
+
+}
+
+
+
+//==============================
+// MOBILE MENU
+//==============================
+
+function toggleMenu(){
+
+if(!mobileMenu)
+return;
+
+
+mobileMenu.classList.toggle("show");
+
+}
+
+
+
+//==============================
+// THEME BUTTON
+//==============================
+
+if(themeButton){
+
+themeButton.addEventListener(
+
+"click",
+
+()=>{
+
+
+if(currentTheme==="dark"){
+
+currentTheme="light";
+
+}
+
+else{
+
+currentTheme="dark";
+
+}
+
+
+localStorage.setItem(
+
+"theme",
+
+currentTheme
+
+);
+
+
+applyTheme();
+
+
+}
+
+);
+
+}
+
+
+
+//==============================
+// NAVBAR SCROLL EFFECT
+//==============================
+
+window.addEventListener(
+
+"scroll",
+
+()=>{
+
+
+if(!navbar)
+return;
+
+
+if(window.scrollY>50){
+
+navbar.classList.add(
+"scrolled"
+);
+
+}
+
+else{
+
+navbar.classList.remove(
+"scrolled"
+);
+
+}
+
+
+if(topButton){
+
+if(window.scrollY>500){
+
+topButton.classList.add(
+"show"
+);
+
+}
+
+else{
+
+topButton.classList.remove(
+"show"
+);
+
+}
+
+}
+
+
+}
+
+);
+
+
+
+//==============================
+// BACK TO TOP
+//==============================
+
+if(topButton){
+
+topButton.onclick=()=>{
+
+
+window.scrollTo({
+
+top:0,
+
+behavior:"smooth"
+
+});
+
+
+};
+
+}
+
+
+
+//==============================
+// UTILITY FUNCTIONS
+//==============================
+
+
+function escapeHTML(text){
+
+if(!text)
+return "";
+
+
+return text
+
+.replace(/&/g,"&amp;")
+
+.replace(/</g,"&lt;")
+
+.replace(/>/g,"&gt;")
+
+.replace(/"/g,"&quot;")
+
+.replace(/'/g,"&#039;");
+
+}
+
+
+
+function countUnique(array,key){
+
+return new Set(
+
+array
+
+.map(item=>item[key])
+
+.filter(Boolean)
+
+).size;
+
+
+}
+/*==================================================
+PART 2
+Supabase Loading System
+==================================================*/
+
+
+//==============================
+// LOAD ANNOUNCEMENTS
+//==============================
+
+async function loadAnnouncements(){
+
+if(!announcementBox)
+return;
+
+
+announcementBox.innerHTML=`
+
+<div class="ts-skeleton ts-skeleton-title"></div>
+
+<div class="ts-skeleton ts-skeleton-text"></div>
+
+`;
+
+
+
+try{
+
+
+const {data,error}=
+
+await window.supabaseClient
+
+.from("announcements")
+
+.select("*")
+
+.order(
+
+"created_at",
+
+{
+
+ascending:false
+
+}
+
+)
+
+.limit(1);
+
+
+
+if(error)
+
+throw error;
+
+
+
+if(!data || data.length===0){
+
+
+announcementBox.innerHTML=`
+
+<div class="ts-announcement">
 
 <h3>
-Loading The Scholars...
+
+No Announcements
+
 </h3>
 
-</div>
-
-
-
-
-
-<!--==============================
-BACKGROUND PARTICLES
-==============================-->
-
-<div class="ts-particles" id="particles">
-
-</div>
-
-
-
-
-
-
-<!--==============================
-NAVBAR
-==============================-->
-
-<header class="ts-navbar" id="navbar">
-
-
-<div class="ts-nav-container">
-
-
-
-<a href="#" class="ts-logo">
-
-<span>
-T
-</span>
-
-The Scholars
-
-</a>
-
-
-
-
-
-<nav class="ts-nav-links">
-
-
-<a href="#home">
-Home
-</a>
-
-
-<a href="#resources">
-Resources
-</a>
-
-
-<a href="#announcements">
-Announcements
-</a>
-
-
-<a href="#about">
-About
-</a>
-
-
-
-</nav>
-
-
-
-
-
-<div class="ts-nav-actions">
-
-
-
-<button 
-class="ts-icon-btn"
-id="themeBtn">
-
-🌙
-
-</button>
-
-
-
-
-<button
-class="ts-icon-btn ts-menu-btn"
-onclick="toggleMenu()">
-
-☰
-
-</button>
-
-
-
-</div>
-
-
-
-
-</div>
-
-
-</header>
-
-
-
-
-
-
-<!--==============================
-MOBILE MENU
-==============================-->
-
-
-<div class="ts-mobile-menu" id="mobileMenu">
-
-
-<a href="#home">
-Home
-</a>
-
-
-<a href="#resources">
-Resources
-</a>
-
-
-<a href="#announcements">
-Announcements
-</a>
-
-
-<a href="#about">
-About
-</a>
-
-
-</div>
-<!--==============================
-HERO SECTION
-==============================-->
-
-<main>
-
-
-<section class="ts-hero ts-section" id="home">
-
-
-<div class="ts-container">
-
-
-<div class="ts-hero-grid">
-
-
-
-<!-- Hero Text -->
-
-<div class="ts-hero-content">
-
-
-<div class="ts-badge">
-
-🎓 Premium Learning Platform
-
-</div>
-
-
-
-<h1>
-
-Learn Better.
-
-<br>
-
-Grow Faster.
-
-<br>
-
-<span>
-With The Scholars
-</span>
-
-</h1>
-
-
-
 <p>
 
-Access quality study resources,
-notes, announcements and learning
-materials in one professional platform.
+There are no announcements available currently.
 
 </p>
 
-
-
-
-<div class="ts-btn-group">
-
-
-<a href="#resources"
-class="ts-btn ts-btn-primary">
-
-Explore Resources
-
-</a>
-
-
-
-<a href="#announcements"
-class="ts-btn ts-btn-outline">
-
-Latest Updates
-
-</a>
-
-
-
 </div>
 
+`;
 
+return;
 
+}
 
 
-<!-- Search -->
 
-<div class="ts-search">
+const announcement=data[0];
 
 
-<input
 
-type="search"
+announcementBox.innerHTML=`
 
-id="searchInput"
-
-placeholder="Search resources, subjects, chapters..."
-
->
-
-
-<button>
-
-Search
-
-</button>
-
-
-</div>
-
-
-
-</div>
-
-
-
-
-
-
-<!-- Hero Card -->
-
-<div class="ts-hero-card ts-glass">
-
-
-
-<div class="ts-status">
-
-<span class="ts-status-dot"></span>
-
-Live Platform
-
-</div>
-
-
-
-
-<h2>
-
-The Scholars
-
-</h2>
-
-
-<p>
-
-Your digital classroom for
-organized learning resources.
-
-</p>
-
-
-
-
-</div>
-
-
-
-
-</div>
-
-
-</div>
-
-
-</section>
-
-
-
-
-
-
-
-
-<!--==============================
-STATISTICS
-==============================-->
-
-<section class="ts-section">
-
-
-<div class="ts-container">
-
-
-<div class="ts-stats">
-
-
-
-<div class="ts-stat ts-glass">
-
-
-<h2 id="totalResources">
-
-0
-
-</h2>
-
-
-<p>
-
-Total Resources
-
-</p>
-
-
-</div>
-
-
-
-
-<div class="ts-stat ts-glass">
-
-
-<h2 id="totalSubjects">
-
-0
-
-</h2>
-
-
-<p>
-
-Subjects
-
-</p>
-
-
-</div>
-
-
-
-
-
-<div class="ts-stat ts-glass">
-
-
-<h2 id="totalClasses">
-
-0
-
-</h2>
-
-
-<p>
-
-Classes
-
-</p>
-
-
-</div>
-
-
-
-
-
-<div class="ts-stat ts-glass">
-
-
-<h2>
-
-24/7
-
-</h2>
-
-
-<p>
-
-Learning Access
-
-</p>
-
-
-</div>
-
-
-
-</div>
-
-
-</div>
-
-
-</section>
-<!--==============================
-ANNOUNCEMENTS SECTION
-==============================-->
-
-<section 
-class="ts-section"
-id="announcements">
-
-
-<div class="ts-container">
-
-
-
-<div class="ts-section-header">
-
-
-<div class="ts-section-text">
-
-
-<div class="ts-section-tag">
-
-Latest Updates
-
-</div>
-
-
-<h2 class="ts-title">
-
-Announcements
-
-</h2>
-
-
-<p class="ts-subtitle">
-
-Stay updated with important
-notices and platform news.
-
-</p>
-
-
-</div>
-
-
-</div>
-
-
-
-
-<div id="announcementBox">
-
-
-<!-- Announcement loads here -->
-
-
-</div>
-
-
-
-</div>
-
-
-</section>
-
-
-
-
-
-
-
-
-<!--==============================
-RESOURCES SECTION
-==============================-->
-
-<section 
-class="ts-section"
-id="resources">
-
-
-<div class="ts-container">
-
-
-
-<div class="ts-section-header">
-
-
-<div class="ts-section-text">
-
-
-<div class="ts-section-tag">
-
-Study Material
-
-</div>
-
-
-
-<h2 class="ts-title">
-
-Latest Resources
-
-</h2>
-
-
-
-<p class="ts-subtitle">
-
-Find notes, chapters, and study
-materials easily.
-
-</p>
-
-
-
-</div>
-
-
-</div>
-
-
-
-
-
-
-
-<!-- FILTER BUTTONS -->
-
-
-<div class="ts-filters">
-
-
-
-<button
-
-class="ts-filter active"
-
-data-filter="all">
-
-All
-
-</button>
-
-
-
-<button
-
-class="ts-filter"
-
-data-filter="notes">
-
-Notes
-
-</button>
-
-
-
-
-<button
-
-class="ts-filter"
-
-data-filter="pdf">
-
-PDF
-
-</button>
-
-
-
-
-<button
-
-class="ts-filter"
-
-data-filter="paper">
-
-Papers
-
-</button>
-
-
-
-</div>
-
-
-
-
-
-
-
-<!-- RESOURCE GRID -->
-
-
-<div 
-
-class="ts-grid"
-
-id="resourceContainer">
-
-
-
-<!-- Resources load here -->
-
-
-
-</div>
-
-
-
-</div>
-
-
-</section>
-<!--==============================
-ACCESS CODE POPUP
-==============================-->
-
-<div 
-class="ts-popup"
-id="unlockPopup">
-
-
-<div class="ts-popup-box">
-
-
-
-<div class="ts-popup-icon">
-
-🔐
-
-</div>
-
-
-
-
-<h2>
-
-Enter Access Code
-
-</h2>
-
-
-
-<p>
-
-This resource requires an
-access code to continue.
-
-</p>
-
-
-
-
-<input
-
-type="text"
-
-id="codeInput"
-
-placeholder="Enter access code"
-
-autocomplete="off"
-
->
-
-
-
-
-<div 
-
-class="ts-error"
-
-id="errorMsg">
-
-</div>
-
-
-
-
-
-<div class="ts-popup-actions">
-
-
-
-<button
-
-class="ts-confirm"
-
-onclick="checkAccessCode()">
-
-Unlock
-
-</button>
-
-
-
-<button
-
-class="ts-cancel"
-
-onclick="closePopup()">
-
-Cancel
-
-</button>
-
-
-
-</div>
-
-
-
-</div>
-
-
-</div>
-
-
-
-
-
-
-
-<!--==============================
-TOAST NOTIFICATION
-==============================-->
-
-
-<div 
-
-class="ts-toast"
-
-id="toast">
-
-
-<span id="toastText">
-
-</span>
-
-
-</div>
-
-
-
-
-
-
-
-
-<!--==============================
-BACK TO TOP
-==============================-->
-
-
-<button
-
-class="ts-top"
-
-id="topBtn">
-
-↑
-
-</button>
-
-  <!--==============================
-FOOTER
-==============================-->
-
-<footer 
-class="ts-footer"
-id="about">
-
-
-<div class="ts-container">
-
+<div class="ts-announcement ts-reveal active">
 
 <h3>
 
-The Scholars
+📢 ${escapeHTML(announcement.title)}
 
 </h3>
 
 
+<p>
+
+${escapeHTML(announcement.message)}
+
+</p>
+
+
+</div>
+
+`;
+
+
+
+}
+
+catch(error){
+
+
+console.error(
+
+"Announcement Error:",
+
+error
+
+);
+
+
+
+announcementBox.innerHTML=`
+
+<div class="ts-announcement">
+
+<h3>
+
+Unable to load announcement
+
+</h3>
 
 <p>
 
-A premium learning platform
-for organized education.
+Please try again later.
+
+</p>
+
+</div>
+
+`;
+
+
+showToast(
+
+"Announcement loading failed",
+
+"error"
+
+);
+
+
+}
+
+
+
+}
+
+
+
+
+
+//==============================
+// LOAD RESOURCES
+//==============================
+
+
+async function loadResources(){
+
+
+if(!resourceContainer)
+
+return;
+
+
+
+showSkeleton();
+
+
+
+try{
+
+
+const {data,error}=
+
+await window.supabaseClient
+
+.from("resources")
+
+.select("*")
+
+.order(
+
+"uploaded_date",
+
+{
+
+ascending:false
+
+}
+
+);
+
+
+
+if(error)
+
+throw error;
+
+
+
+allResources=data || [];
+
+
+
+updateStatistics();
+
+
+
+displayResources(allResources);
+
+
+
+}
+
+catch(error){
+
+
+console.error(
+
+"Resource Error:",
+
+error
+
+);
+
+
+
+resourceContainer.innerHTML=`
+
+<div class="ts-empty">
+
+<h3>
+
+Failed to load resources
+
+</h3>
+
+
+<p>
+
+Check your internet connection and try again.
+
+</p>
+
+</div>
+
+`;
+
+
+
+showToast(
+
+"Resource loading failed",
+
+"error"
+
+);
+
+
+
+}
+
+
+
+}
+
+
+
+
+
+//==============================
+// STATISTICS
+//==============================
+
+
+function updateStatistics(){
+
+
+const totalResources=
+
+document.getElementById(
+
+"totalResources"
+
+);
+
+
+const totalSubjects=
+
+document.getElementById(
+
+"totalSubjects"
+
+);
+
+
+const totalClasses=
+
+document.getElementById(
+
+"totalClasses"
+
+);
+
+
+
+if(totalResources)
+
+totalResources.innerText=
+
+allResources.length;
+
+
+
+if(totalSubjects)
+
+totalSubjects.innerText=
+
+countUnique(
+
+allResources,
+
+"subject"
+
+);
+
+
+
+if(totalClasses)
+
+totalClasses.innerText=
+
+countUnique(
+
+allResources,
+
+"class"
+
+);
+
+
+
+}
+
+
+
+
+
+//==============================
+// REFRESH SYSTEM
+//==============================
+
+
+async function refreshData(){
+
+
+showToast(
+
+"Refreshing data...",
+
+"warning"
+
+);
+
+
+
+await loadAnnouncements();
+
+await loadResources();
+
+
+
+showToast(
+
+"Updated successfully",
+
+"success"
+
+);
+
+
+}
+
+
+
+
+
+//==============================
+// CONNECTION STATUS
+//==============================
+
+
+window.addEventListener(
+
+"offline",
+
+()=>{
+
+
+showToast(
+
+"No internet connection",
+
+"error"
+
+);
+
+
+}
+
+);
+
+
+
+window.addEventListener(
+
+"online",
+
+()=>{
+
+
+showToast(
+
+"Connection restored",
+
+"success"
+
+);
+
+
+refreshData();
+
+
+});
+
+
+
+
+
+//==============================
+// AUTO UPDATE ANNOUNCEMENTS
+//==============================
+
+
+setInterval(()=>{
+
+
+loadAnnouncements();
+
+
+},60000);
+/*==================================================
+PART 3
+Resource Cards • Search • Filters
+==================================================*/
+
+
+//==============================
+// DISPLAY RESOURCES
+//==============================
+
+function displayResources(resources){
+
+
+if(!resourceContainer)
+
+return;
+
+
+
+if(resources.length===0){
+
+
+resourceContainer.innerHTML=`
+
+<div class="ts-empty">
+
+<h3>
+
+No Resources Found
+
+</h3>
+
+<p>
+
+Try searching something else.
+
+</p>
+
+</div>
+
+`;
+
+return;
+
+}
+
+
+
+resourceContainer.innerHTML="";
+
+
+
+resources.forEach((resource,index)=>{
+
+
+
+const card=document.createElement("div");
+
+
+card.className=
+
+"ts-card ts-reveal";
+
+
+
+card.style.animationDelay=
+
+`${index*0.08}s`;
+
+
+
+const isNew=index<3;
+
+
+
+card.innerHTML=`
+
+${isNew ? `
+
+<div class="ts-badge-new">
+
+NEW
+
+</div>
+
+`:""}
+
+
+
+<h3 class="ts-card-title">
+
+${escapeHTML(resource.title)}
+
+</h3>
+
+
+
+<p class="ts-card-desc">
+
+${escapeHTML(
+
+resource.description ||
+
+"No description available."
+
+)}
 
 </p>
 
 
 
-<small>
+<div class="ts-meta">
 
-© <span id="year"></span>
-The Scholars. All rights reserved.
 
-</small>
+<span>
+
+📚 ${escapeHTML(
+
+resource.subject || "Subject"
+
+)}
+
+</span>
+
+
+
+<span>
+
+📖 ${escapeHTML(
+
+resource.chapter || "Chapter"
+
+)}
+
+</span>
+
+
+
+<span>
+
+🎓 Class ${escapeHTML(
+
+resource.class || "-"
+
+)}
+
+</span>
+
+
+
+<span>
+
+📄 ${escapeHTML(
+
+resource.resource_type || "Notes"
+
+)}
+
+</span>
 
 
 
 </div>
 
 
-</footer>
+
+<div class="ts-card-footer">
+
+
+<button
+
+class="ts-btn-open"
+
+onclick="openProtectedResource('${resource.pdf_url}')">
+
+Open Resource
+
+</button>
+
+
+
+</div>
+
+`;
+
+
+
+resourceContainer.appendChild(card);
+
+
+
+});
+
+
+
+activateReveal();
+
+
+}
 
 
 
 
 
+//==============================
+// SEARCH SYSTEM
+//==============================
 
 
-<!--==============================
-SCRIPTS
-==============================-->
+if(searchInput){
 
 
-<!-- Supabase Library -->
+searchInput.addEventListener(
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+"input",
 
-
-
-<!-- Supabase Connection -->
-
-<script src="supabase.js"></script>
+()=>{
 
 
+const keyword=
 
-<!-- Main Application -->
+searchInput.value
 
-<script src="app.js"></script>
+.toLowerCase()
+
+.trim();
 
 
 
-</body>
+if(keyword===""){
 
-</html>
+
+displayResources(allResources);
+
+return;
+
+}
+
+
+
+const filtered=
+
+allResources.filter(resource=>{
+
+
+return(
+
+(resource.title||"")
+
+.toLowerCase()
+
+.includes(keyword)
+
+
+||
+
+(resource.description||"")
+
+.toLowerCase()
+
+.includes(keyword)
+
+
+
+||
+
+(resource.subject||"")
+
+.toLowerCase()
+
+.includes(keyword)
+
+
+
+||
+
+(resource.chapter||"")
+
+.toLowerCase()
+
+.includes(keyword)
+
+
+
+||
+
+(resource.resource_type||"")
+
+.toLowerCase()
+
+.includes(keyword)
+
+);
+
+
+});
+
+
+
+displayResources(filtered);
+
+
+
+}
+
+);
+
+
+}
+
+
+
+
+//==============================
+// FILTER SYSTEM
+//==============================
+
+
+const filterButtons=
+
+document.querySelectorAll(
+
+".ts-filter"
+
+);
+
+
+
+filterButtons.forEach(button=>{
+
+
+button.addEventListener(
+
+"click",
+
+()=>{
+
+
+filterButtons.forEach(btn=>{
+
+btn.classList.remove("active");
+
+});
+
+
+
+button.classList.add("active");
+
+
+
+const filter=
+
+button.dataset.filter;
+
+
+
+if(!filter || filter==="all"){
+
+
+displayResources(allResources);
+
+return;
+
+}
+
+
+
+const filtered=
+
+allResources.filter(resource=>{
+
+
+return(
+
+resource.resource_type &&
+
+resource.resource_type
+
+.toLowerCase()
+
+===filter.toLowerCase()
+
+);
+
+
+});
+
+
+
+displayResources(filtered);
+
+
+
+}
+
+);
+
+
+});
+
+
+
+
+//==============================
+// SCROLL REVEAL
+//==============================
+
+
+function activateReveal(){
+
+
+const elements=
+
+document.querySelectorAll(
+
+".ts-reveal"
+
+);
+
+
+
+const observer=
+
+new IntersectionObserver(
+
+(entries)=>{
+
+
+entries.forEach(entry=>{
+
+
+if(entry.isIntersecting){
+
+
+entry.target.classList.add(
+
+"active"
+
+);
+
+
+observer.unobserve(
+
+entry.target
+
+);
+
+
+}
+
+
+});
+
+
+},
+
+{
+
+threshold:.15
+
+}
+
+);
+
+
+
+elements.forEach(element=>{
+
+
+observer.observe(element);
+
+
+});
+
+
+}
+/*==================================================
+PART 4
+Access Code Protection System
+==================================================*/
+
+
+//==============================
+// OPEN PROTECTED RESOURCE
+//==============================
+
+function openProtectedResource(pdfUrl){
+
+
+if(!unlockPopup){
+
+console.error(
+"Access popup not found"
+);
+
+return;
+
+}
+
+
+selectedPDF = pdfUrl;
+
+
+if(codeInput){
+
+codeInput.value="";
+
+}
+
+
+if(errorMessage){
+
+errorMessage.innerText="";
+
+}
+
+
+unlockPopup.classList.add("active");
+
+
+}
+
+
+
+//==============================
+// CLOSE POPUP
+//==============================
+
+function closePopup(){
+
+
+if(!unlockPopup)
+
+return;
+
+
+
+unlockPopup.classList.remove("active");
+
+
+
+if(codeInput){
+
+codeInput.value="";
+
+}
+
+
+
+if(errorMessage){
+
+errorMessage.innerText="";
+
+}
+
+
+}
+
+
+
+
+//==============================
+// VERIFY ACCESS CODE
+//==============================
+
+
+async function checkAccessCode(){
+
+
+
+const code =
+
+codeInput.value.trim();
+
+
+
+if(!code){
+
+
+errorMessage.innerText=
+
+"Enter access code";
+
+
+showToast(
+
+"Access code required",
+
+"warning"
+
+);
+
+
+return;
+
+}
+
+
+
+try{
+
+
+const now =
+
+new Date()
+
+.toISOString();
+
+
+
+const {data,error}=
+
+await window.supabaseClient
+
+.from("access_codes")
+
+.select("*")
+
+.eq(
+
+"access_code",
+
+code
+
+)
+
+.eq(
+
+"active",
+
+true
+
+)
+
+.limit(1);
+
+
+
+if(error)
+
+throw error;
+
+
+
+if(!data || data.length===0){
+
+
+errorMessage.innerText=
+
+"Invalid access code";
+
+
+showToast(
+
+"Access denied",
+
+"error"
+
+);
+
+
+return;
+
+}
+
+
+
+
+
+const access=data[0];
+
+
+
+// Check expiry
+
+if(
+
+access.expires_at &&
+
+new Date(access.expires_at)
+
+< new Date()
+
+){
+
+
+errorMessage.innerText=
+
+"Access code expired";
+
+
+showToast(
+
+"Code expired",
+
+"error"
+
+);
+
+
+return;
+
+}
+
+
+
+
+// Save session
+
+sessionStorage.setItem(
+
+"ts_access",
+
+code
+
+);
+
+
+
+showToast(
+
+"Access granted",
+
+"success"
+
+);
+
+
+
+closePopup();
+
+
+
+// Open PDF
+
+window.open(
+
+selectedPDF,
+
+"_blank"
+
+);
+
+
+
+}
+
+catch(error){
+
+
+console.error(
+
+"Access Error:",
+
+error
+
+);
+
+
+
+showToast(
+
+"Verification failed",
+
+"error"
+
+);
+
+
+}
+
+
+
+}
+
+
+
+
+
+//==============================
+// REMEMBER ACCESS SESSION
+//==============================
+
+
+function hasAccess(){
+
+
+return Boolean(
+
+sessionStorage.getItem(
+
+"ts_access"
+
+)
+
+);
+
+
+}
+
+
+
+
+
+//==============================
+// POPUP EVENTS
+//==============================
+
+
+if(codeInput){
+
+
+codeInput.addEventListener(
+
+"keydown",
+
+(event)=>{
+
+
+if(event.key==="Enter"){
+
+checkAccessCode();
+
+}
+
+
+}
+
+);
+
+
+}
+
+
+
+
+// Close on outside click
+
+if(unlockPopup){
+
+
+unlockPopup.addEventListener(
+
+"click",
+
+(event)=>{
+
+
+if(
+
+event.target===unlockPopup
+
+){
+
+
+closePopup();
+
+
+}
+
+
+}
+
+);
+
+
+}
+
+
+
+
+
+// ESC close
+
+document.addEventListener(
+
+"keydown",
+
+(event)=>{
+
+
+if(event.key==="Escape"){
+
+closePopup();
+
+}
+
+
+});
+/*==================================================
+PART 5
+Final Initialization & Improvements
+==================================================*/
+
+
+//==============================
+// FOOTER YEAR
+//==============================
+
+const yearElement = 
+document.getElementById("year");
+
+
+if(yearElement){
+
+yearElement.innerText =
+new Date().getFullYear();
+
+}
+
+
+
+//==============================
+// MOBILE MENU CLOSE
+//==============================
+
+
+document.querySelectorAll(
+".ts-mobile-menu a"
+)
+.forEach(link=>{
+
+
+link.addEventListener(
+"click",
+()=>{
+
+
+if(mobileMenu){
+
+mobileMenu.classList.remove(
+"show"
+);
+
+}
+
+
+});
+
+});
+
+
+
+
+//==============================
+// CLICK OUTSIDE MOBILE MENU
+//==============================
+
+document.addEventListener(
+"click",
+(event)=>{
+
+
+if(!mobileMenu)
+return;
+
+
+const menuButton =
+document.querySelector(".ts-menu-btn");
+
+
+
+if(
+
+!mobileMenu.contains(event.target)
+
+&&
+
+menuButton &&
+
+!menuButton.contains(event.target)
+
+){
+
+
+mobileMenu.classList.remove(
+"show"
+);
+
+
+}
+
+
+});
+
+
+
+
+//==============================
+// PAGE VISIBILITY UPDATE
+//==============================
+
+
+document.addEventListener(
+"visibilitychange",
+()=>{
+
+
+if(!document.hidden){
+
+
+loadAnnouncements();
+
+
+}
+
+
+});
+
+
+
+
+//==============================
+// INITIAL START
+//==============================
+
+
+async function startApp(){
+
+
+
+try{
+
+
+await loadAnnouncements();
+
+
+await loadResources();
+
+
+
+setTimeout(()=>{
+
+
+hideLoading();
+
+
+},500);
+
+
+
+}
+
+catch(error){
+
+
+console.error(
+
+"App Start Error:",
+
+error
+
+);
+
+
+
+hideLoading();
+
+
+}
+
+
+
+}
+
+
+
+
+// Start Website
+
+startApp();

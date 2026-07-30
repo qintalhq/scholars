@@ -12,35 +12,6 @@ let allResources = [];
 // ------------------------------
 // Load Announcements
 // ------------------------------
-async function checkAccessCode() {
-
-    const enteredCode = document
-        .getElementById("codeInput")
-        .value
-        .trim();
-
-    const { data, error } =
-        await window.supabaseClient
-        .from("access_codes")
-        .select("id")
-        .eq("access_code", enteredCode)
-        .eq("active", true)
-        .maybeSingle();
-
-    const now = new Date().toISOString();
-
-
-
-    if (!data) {
-        document.getElementById("errorMsg").textContent =
-            "❌ Invalid Access Code";
-        return;
-    }
-
-    window.open(selectedPDF, "_blank");
-
-    document.getElementById("unlockPopup").style.display = "none";
-}
 
 
 
@@ -108,16 +79,7 @@ async function loadAnnouncements() {
 async function loadResources() {
 
 
-let selectedPDF = "";
 
-function openProtectedResource(url){
-    selectedPDF = url;
-    document.getElementById("unlockPopup").style.display = "flex";
-
-
-function closePopup(){
-    document.getElementById("unlockPopup").style.display = "none";
-}
   
 
 
